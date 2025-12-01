@@ -2,9 +2,10 @@
 import { $t } from '@/locales';
 import { useNaiveForm } from '@/hooks/common/form';
 import { AuditTypeOptions, translateOptions } from '@/constants/business';
+import { NSelect } from 'naive-ui';
 
 defineOptions({
-  name: 'AuditBaseLogsSearch'
+  name: 'DeviceSearch'
 });
 
 interface Emits {
@@ -16,7 +17,7 @@ const emit = defineEmits<Emits>();
 
 const { formRef } = useNaiveForm();
 
-const model = defineModel<Api.Audit.AuditLogSearchParams>('model', { required: true });
+const model = defineModel<Api.Devices.DeviceSearchParams>('model', { required: true });
 
 async function reset() {
   emit('reset');
@@ -41,6 +42,17 @@ async function search() {
             </NFormItemGi>
             <NFormItemGi span="24 s:12 m:6" :label="$t('dataMap.device.rustdesk_id')" path="rustdesk_id">
               <NInput v-model:value="model.rustdesk_id" />
+            </NFormItemGi>
+            <NFormItemGi span="24 s:12 m:6" label="Status" path="status">
+              <NSelect
+                v-model:value="model.status"
+                :options="[
+                  { label: $t('common.all'), value: '' },
+                  { label: '🟢 Online', value: 'online' },
+                  { label: '🔴 Offline', value: 'offline' }
+                ]"
+                clearable
+              />
             </NFormItemGi>
             
             <NFormItemGi span="24 m:12">

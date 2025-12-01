@@ -131,6 +131,22 @@ const {
       }
     },
     {
+      key: 'role',
+      title: $t('dataMap.user.role'),
+      align: 'center',
+      render: row => {
+        // Use explicit colors for better contrast and consistent appearance
+        const roleMap: Record<number, { label: string; color: string }> = {
+          1: { label: $t('dataMap.user.roleLabel.user'), color: '#95a5a6' }, // gray
+          2: { label: $t('dataMap.user.roleLabel.support'), color: '#3498db' }, // blue
+          3: { label: $t('dataMap.user.roleLabel.supportN2'), color: '#2ecc71' }, // green
+          4: { label: $t('dataMap.user.roleLabel.superAdmin'), color: '#e74c3c' } // red
+        };
+        const role = roleMap[row.role || 1];
+        return <NTag bordered={false} color={role.color}>{role.label}</NTag>;
+      }
+    },
+    {
       key: 'created_at',
       title: $t('dataMap.user.created_at'),
       align: 'center'

@@ -8,6 +8,12 @@ const LOGIN_EMAIL_CHECK string = "email_check"
 const LOGIN_TFA_CHECK string = "tfa_check"
 const LOGIN_ACCESS_TOKEN string = "access_token"
 
+// User roles
+const ROLE_USER int = 1        // Regular user
+const ROLE_SUPPORT int = 2     // Support - view logs and devices
+const ROLE_SUPPORT_N2 int = 3  // Support N2 - manage users
+const ROLE_SUPER_ADMIN int = 4 // Super Admin - full access
+
 type User struct {
 	Id                  int       `xorm:"'id' int notnull pk autoincr"`
 	Username            string    `xorm:"'username' varchar(50)"`
@@ -19,7 +25,8 @@ type User struct {
 	Note                string    `xorm:"'note' varchar(255)"`
 	LicensedDevices     int       `xorm:"'licensed_devices' int"`
 	Status              int       `xorm:"'status' tinyint"` // 0=disabled,1=normal,-1=unverified
-	IsAdmin             bool      `xorm:"'is_admin' tinyint"`
+	IsAdmin             bool      `xorm:"'is_admin' tinyint"` // Deprecated: use Role instead
+	Role                int       `xorm:"'role' tinyint default 1"` // 1=User, 2=Support, 3=Support N2, 4=Super Admin
 	CreatedAt           time.Time `xorm:"'created_at' datetime created"`
 	UpdatedAt           time.Time `xorm:"'updated_at' datetime updated"`
 }

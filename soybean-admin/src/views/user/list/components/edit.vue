@@ -53,6 +53,7 @@ type Model = Pick<
   | 'admin_status'
   | 'status'
   | 'tfa_code'
+  | 'role'
 >;
 
 const model: Model = reactive(createDefaultModel());
@@ -71,7 +72,8 @@ function createDefaultModel(): Model {
     status: 1,
     is_admin: false,
     admin_status: 0,
-    tfa_code: ''
+    tfa_code: '',
+    role: 1
   };
 }
 
@@ -188,16 +190,6 @@ watch(visible, () => {
         <NFormItem :label="$t('dataMap.user.licensed_devices')" path="licensed_devices">
           <NInputNumber v-model:value="model.licensed_devices" />
         </NFormItem>
-        <NFormItem
-          v-if="!(operateType === 'edit' && model.is_admin)"
-          :label="$t('dataMap.user.is_admin')"
-          path="is_admin"
-        >
-          <NSwitch v-model:value="model.is_admin">
-            <template #checked>{{ $t('common.yesOrNo.yes') }}</template>
-            <template #unchecked>{{ $t('common.yesOrNo.no') }}</template>
-          </NSwitch>
-        </NFormItem>
         <NFormItem :label="$t('dataMap.user.login_verify')" path="login_verify">
           <NSelect
             v-model:value="model.login_verify"
@@ -222,6 +214,17 @@ watch(visible, () => {
         </NFormItem>
         <NFormItem v-if="model.login_verify === 'tfa_check'" :label="$t('dataMap.user.tfa_code')" path="tfa_code">
           <NInput v-model:value="model.tfa_code" />
+        </NFormItem>
+        <NFormItem :label="$t('dataMap.user.role')" path="role">
+          <NSelect 
+            v-model:value="model.role" 
+            :options="[
+              { label: $t('dataMap.user.roleLabel.user'), value: 1 },
+              { label: $t('dataMap.user.roleLabel.support'), value: 2 },
+              { label: $t('dataMap.user.roleLabel.supportN2'), value: 3 },
+              { label: $t('dataMap.user.roleLabel.superAdmin'), value: 4 }
+            ]" 
+          />
         </NFormItem>
         <NFormItem v-if="!(operateType === 'edit' && model.is_admin)" :label="$t('dataMap.user.status')" path="status">
           <NSelect v-model:value="model.status" :options="translateOptions(UserStatusOptions)" />

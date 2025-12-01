@@ -40,6 +40,8 @@ func (c *SystemController) PostHeartbeat() mvc.Result {
 		device.Uuid = form.Uuid
 		device.Conns = len(form.Conns)
 		device.IsOnline = true
+		device.LastSeenAt = time.Now()
+		device.IpAddress = c.Ctx.RemoteAddr()
 		_, err = c.Db.Insert(&device)
 		if err != nil {
 			return mvc.Response{
@@ -50,9 +52,11 @@ func (c *SystemController) PostHeartbeat() mvc.Result {
 		}
 	}
 
-	_, err = c.Db.Where("rustdesk_id = ?", form.RustdeskId).Cols("is_online", "conns").Update(&model.Device{
-		IsOnline: true,
-		Conns:    len(form.Conns),
+	_, err = c.Db.Where("rustdesk_id = ?", form.RustdeskId).Cols("is_online", "conns", "last_seen_at", "ip_address").Update(&model.Device{
+		IsOnline:   true,
+		Conns:      len(form.Conns),
+		LastSeenAt: time.Now(),
+		IpAddress:  c.Ctx.RemoteAddr(),
 	})
 	if err != nil {
 		return mvc.Response{
@@ -108,6 +112,19 @@ func (c *SystemController) PostSysinfo() mvc.Result {
 	device.Version = form.Version
 
 	c.Db.Where("id = ?", device.Id).Update(&device)
+
+	// Update platform in peers table when OS info is received
+	if form.Os != "" {
+		_, err = c.Db.Where("rustdesk_id = ?", form.RustdeskId).Cols("platform", "hostname", "username").Update(&model.Peer{
+			Platform: form.Os,
+			Hostname: form.Hostname,
+			Username: form.Username,
+		})
+		if err != nil {
+			// Log error but don't fail the request
+			c.Ctx.Application().Logger().Errorf("Failed to update peer platform: %v", err)
+		}
+	}
 
 	return mvc.Response{
 		Text: "SYSINFO_UPDATED",

@@ -12,5 +12,6 @@ type UserForm struct {
 	Note                string `json:"note"`
 	LicensedDevices     int    `json:"licensed_devices"`
 	Status              int    `json:"status"`
-	IsAdmin             bool   `json:"is_admin"`
+	IsAdmin             bool   `json:"is_admin"` // Deprecated: use Role instead
+	Role                int    `json:"role"`     // 1=User, 2=Support, 3=Support N2, 4=Super Admin
 }

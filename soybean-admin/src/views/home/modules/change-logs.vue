@@ -13,7 +13,9 @@ interface LogItem {
 }
 
 const logs = computed<LogItem[]>(() => [
-  { id: 1, content: '适配v1.2.7版本客户端', version: 'v1.2.7', time: '2024-08-29' }
+  { id: 3, content: 'Sistema de status online/offline dos dispositivos com atualização automática', version: 'v1.3.0', time: '2025-12-01' },
+  { id: 2, content: 'Gerenciamento completo de Address Books com visualização de peers', version: 'v1.3.0', time: '2025-12-01' },
+  { id: 1, content: 'Sincronização automática do sistema operacional no dashboard', version: 'v1.3.0', time: '2025-12-01' }
 ]);
 </script>
 

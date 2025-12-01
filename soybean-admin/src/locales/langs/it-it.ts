@@ -1,13 +1,14 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Server API Rustdesk',
-    updateTitle: 'Notifica aggiornamento versione di sistema',
+    title: 'MT Remoto Control',
+    updateTitle: 'Notifica di aggiornamento della versione del sistema',
     updateContent: 'È stata rilevata una nuova versione del sistema. Vuoi aggiornare subito la pagina?',
     updateConfirm: 'Aggiorna subito',
     updateCancel: 'Più tardi'
   },
   common: {
     action: 'Azione',
+    all: 'Tutti',
     add: 'Aggiungi',
     addSuccess: 'Aggiunto con successo',
     backToHome: 'Torna alla home',
@@ -164,6 +165,7 @@ const local: App.I18n.Schema = {
     system_mail: 'Gestione email',
     audit_baselogs: 'Log di base',
     audit_filetransferlogs: 'Log trasferimenti file',
+    'address-books': 'Rubriche',
     devices: 'Dispositivi',
   },
   page: {
@@ -189,9 +191,11 @@ const local: App.I18n.Schema = {
     },
     home: {
       greeting: 'Buongiorno, {userName}, oggi è un altro giorno pieno di energia!',
-      friendlySponsorship: 'Sponsorizzazione amichevole',
-      cupOfCoffee: 'Mi offri un caffè?',
-      thankYou: 'Grazie per la tua sponsorizzazione',
+      realtimeStats: 'Statistiche in tempo reale',
+      devicesOnline: 'Online',
+      devicesOffline: 'Offline',
+      totalDevices: 'Dispositivi totali',
+      activeConnections: 'Connessioni attive',
       userCount: 'Numero utenti',
       deviceCount: 'Numero dispositivi',
       onlineCount: 'Online',
@@ -220,6 +224,10 @@ const local: App.I18n.Schema = {
       },
       audit: {
         logsSearchPlaceholder: 'Nome utente\\Azione\\RustdeskID\\IP'
+      },
+      devices: {
+        title: 'Dispositivi',
+        searchPlaceholder: 'Nome computer\\Utente\\RustdeskID'
       }
     },
     system: {
@@ -268,6 +276,7 @@ const local: App.I18n.Schema = {
       login_verify: 'Verifica accesso',
       status: 'Stato',
       is_admin: 'È amministratore',
+      role: 'Ruolo',
       tfa_secret: 'Segreto 2FA',
       tfa_code: 'Codice 2FA',
       created_at: 'Creato il',
@@ -280,6 +289,12 @@ const local: App.I18n.Schema = {
         none: 'Nessuna',
         emailCheck: 'Verifica email',
         tfaCheck: '2FA'
+      },
+      roleLabel: {
+        user: 'Utente',
+        support: 'Supporto',
+        supportN2: 'Supporto N2',
+        superAdmin: 'Super Admin'
       }
     },
     session: {
@@ -293,6 +308,14 @@ const local: App.I18n.Schema = {
         memory: 'Memoria',
         os: 'Sistema Operativo',
         rustdesk_id: 'ID Rustdesk',
+        ip_address: 'Indirizzo IP',
+        conns: 'Connessioni',
+        last_seen_at: 'Ultimo accesso',
+        is_online: 'Stato',
+        statusLabel: {
+          online: 'Online',
+          offline: 'Offline'
+        }
     },
     audit: {
       username: 'Nome utente',

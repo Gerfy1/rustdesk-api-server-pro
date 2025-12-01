@@ -20,6 +20,7 @@ declare module "@elegant-router/types" {
     "403": "/403";
     "404": "/404";
     "500": "/500";
+    "address-books": "/address-books";
     "audit": "/audit";
     "audit_baselogs": "/audit/baselogs";
     "audit_filetransferlogs": "/audit/filetransferlogs";
@@ -68,6 +69,7 @@ declare module "@elegant-router/types" {
     | "403"
     | "404"
     | "500"
+    | "address-books"
     | "audit"
     | "devices"
     | "home"
@@ -96,6 +98,7 @@ declare module "@elegant-router/types" {
     | "500"
     | "iframe-page"
     | "login"
+    | "address-books"
     | "audit_baselogs"
     | "audit_filetransferlogs"
     | "devices"

@@ -289,6 +289,7 @@ declare namespace App {
       };
       common: {
         action: string;
+        all: string;
         add: string;
         addSuccess: string;
         backToHome: string;
@@ -420,9 +421,11 @@ declare namespace App {
         };
         home: {
           greeting: string;
-          friendlySponsorship: string;
-          cupOfCoffee: string;
-          thankYou: string;
+          realtimeStats: string;
+          devicesOnline: string;
+          devicesOffline: string;
+          totalDevices: string;
+          activeConnections: string;
           userCount: string;
           deviceCount: string;
           onlineCount: string;
@@ -453,7 +456,8 @@ declare namespace App {
             logsSearchPlaceholder: string;
           };
           devices: {
-            logsSearchPlaceholder: string;
+            title: string;
+            searchPlaceholder: string;
           };
         };
         system: {
@@ -496,6 +500,7 @@ declare namespace App {
           login_verify: string;
           status: string;
           is_admin: string;
+          role: string;
           tfa_secret: string;
           tfa_code: string;
           created_at: string;
@@ -509,6 +514,12 @@ declare namespace App {
             emailCheck: string;
             tfaCheck: string;
           };
+          roleLabel: {
+            user: string;
+            support: string;
+            supportN2: string;
+            superAdmin: string;
+          };
         };
         session: {
           expired: string;
@@ -521,6 +532,14 @@ declare namespace App {
         memory: string,
         os: string,
         rustdesk_id: string,
+        ip_address: string,
+        conns: string,
+        last_seen_at: string,
+        is_online: string,
+        statusLabel: {
+          online: string,
+          offline: string
+        }
         };
         audit: {
           username: string;

@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"rustdesk-api-server-pro/app/middleware"
+	"rustdesk-api-server-pro/app/model"
 	"rustdesk-api-server-pro/config"
 	"rustdesk-api-server-pro/db"
 
@@ -17,6 +18,30 @@ func newApp(cfg *config.ServerConfig) (*iris.Application, error) {
 		app.Logger().Fatal("Db Engine create error:", err)
 		return nil, err
 	}
+
+	// Auto-sync database tables on startup
+	app.Logger().Info("Syncing database tables...")
+	err = dbEngine.Sync2(
+		new(model.User),
+		new(model.Device),
+		new(model.Peer),
+		new(model.AddressBook),
+		new(model.AddressBookTag),
+		new(model.Tags),
+		new(model.AuthToken),
+		new(model.Audit),
+		new(model.FileTransfer),
+		new(model.MailLogs),
+		new(model.MailTemplate),
+		new(model.SystemSettings),
+		new(model.VerifyCode),
+	)
+	if err != nil {
+		app.Logger().Fatal("Database sync error:", err)
+		return nil, err
+	}
+	app.Logger().Info("Database tables synced successfully!")
+
 	app.RegisterDependency(dbEngine, cfg)
 
 	app.OnErrorCode(iris.StatusNotFound, func(context iris.Context) {

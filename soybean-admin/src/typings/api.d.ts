@@ -96,6 +96,7 @@ declare namespace Api {
       is_admin: boolean;
       admin_status: number;
       tfa_code: string;
+      role: number; // 1=User, 2=Support, 3=Support N2, 4=Super Admin
     }>;
     type UserList = Common.PaginatingQueryRecord<User>;
 
@@ -122,9 +123,13 @@ declare namespace Api {
       hostname: string;
       username: string;
       uuid: string;
-      version:string;
-      os:string;
-      memory:string;
+      version: string;
+      os: string;
+      memory: string;
+      is_online: boolean;
+      last_seen_at: string;
+      ip_address: string;
+      conns: number;
       created_at: string;
     }>;
     type DevicesList = Common.PaginatingQueryRecord<Device>;
@@ -133,7 +138,9 @@ declare namespace Api {
         Api.Devices.Device,
         'username' | 'hostname' | 'rustdesk_id'
       > &
-        Api.Common.CommonSearchParams
+        Api.Common.CommonSearchParams & {
+          status?: string;
+        }
     >;
   }
 
@@ -197,6 +204,43 @@ declare namespace Api {
       Pick<Api.System.MailLog, 'username' | 'uuid' | 'subject' | 'from' | 'to' | 'status' | 'created_at'> &
         Api.Common.CommonSearchParams
     >;
+  }
+
+  namespace AddressBooks {
+    type AddressBook = Common.CommonRecord<{
+      user_id: number;
+      guid: string;
+      name: string;
+      owner: string;
+      note: string;
+      rule: number;
+      max_peer: number;
+      shared: boolean;
+      peer_count: number;
+      updated_at: string;
+      actions?: any; // Virtual column for table actions
+    }>;
+    type AddressBooksList = Common.PaginatingQueryRecord<AddressBook>;
+    type AddressBookDetail = AddressBook;
+    type AddressBookSearchParams = CommonType.RecordNullable<
+      Pick<Api.AddressBooks.AddressBook, 'name' | 'owner'> & Api.Common.CommonSearchParams
+    >;
+
+    type Peer = Common.CommonRecord<{
+      rustdesk_id: string;
+      username: string;
+      hostname: string;
+      alias: string;
+      platform: string;
+      tags: string;
+      is_online: boolean;
+      last_seen_at: string;
+      ip_address: string;
+    }>;
+    type PeersList = {
+      total: number;
+      records: Peer[];
+    };
   }
 
   /**

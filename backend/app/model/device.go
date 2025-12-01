@@ -13,6 +13,8 @@ type Device struct {
 	Uuid       string    `xorm:"'uuid' varchar(255)"`
 	Version    string    `xorm:"'version' varchar(255)"`
 	IsOnline   bool      `xorm:"'is_online' tinyint"`
+	LastSeenAt time.Time `xorm:"'last_seen_at' datetime"`
+	IpAddress  string    `xorm:"'ip_address' varchar(45)"`
 	Conns      int       `xorm:"'conns' int"`
 	CreatedAt  time.Time `xorm:"'created_at' datetime created"`
 	UpdatedAt  time.Time `xorm:"'updated_at' datetime updated"`

@@ -40,6 +40,17 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'address-books',
+    path: '/address-books',
+    component: 'layout.base$view.address-books',
+    meta: {
+      title: 'address-books',
+      i18nKey: 'route.address-books',
+      icon: 'mdi:book-multiple',
+      order: 4
+    }
+  },
+  {
     name: 'audit',
     path: '/audit',
     component: 'layout.base',

@@ -81,6 +81,7 @@ func (c *UsersController) HandleList() mvc.Result {
 			"tfa_secret":       u.TwoFactorAuthSecret,
 			"status":           u.Status,
 			"is_admin":         u.IsAdmin,
+			"role":             u.Role,
 			"created_at":       u.CreatedAt.Format(config.TimeFormat),
 		})
 	}
@@ -124,6 +125,10 @@ func (c *UsersController) HandleAdd() mvc.Result {
 		return c.Error(nil, err.Error())
 	}
 
+	// Auto-calculate is_admin based on role
+	// Role >= 3 (Support N2, Super Admin) = admin access
+	isAdmin := form.Role >= model.ROLE_SUPPORT_N2
+
 	user := &model.User{
 		Username:        form.Username,
 		Password:        p,
@@ -133,7 +138,8 @@ func (c *UsersController) HandleAdd() mvc.Result {
 		LicensedDevices: form.LicensedDevices,
 		LoginVerify:     form.LoginVerify,
 		Status:          form.Status,
-		IsAdmin:         form.IsAdmin,
+		IsAdmin:         isAdmin,
+		Role:            form.Role,
 	}
 
 	// 要绑定2fa
@@ -179,6 +185,10 @@ func (c *UsersController) HandleEdit() mvc.Result {
 		form.Name = form.Username
 	}
 
+	// Auto-calculate is_admin based on role
+	// Role >= 3 (Support N2, Super Admin) = admin access
+	isAdmin := form.Role >= model.ROLE_SUPPORT_N2
+
 	newUser := &model.User{
 		Name:            form.Name,
 		Email:           form.Email,
@@ -186,7 +196,8 @@ func (c *UsersController) HandleEdit() mvc.Result {
 		LicensedDevices: form.LicensedDevices,
 		LoginVerify:     form.LoginVerify,
 		Status:          form.Status,
-		IsAdmin:         form.IsAdmin,
+		IsAdmin:         isAdmin,
+		Role:            form.Role,
 	}
 
 	if p != "" {
@@ -224,7 +235,24 @@ func (c *UsersController) HandleDelete() mvc.Result {
 	if err != nil {
 		return c.Error(nil, err.Error())
 	}
+	
+	// Get current admin info
+	adminInfo := c.Ctx.Values().Get("adminInfo").(model.User)
+	
+	// Remove ID 1 (super admin protection)
 	ids := util.RemoveElement(params.Ids, 1)
+	
+	// Check if trying to delete users with higher or equal role
+	if adminInfo.Role < model.ROLE_SUPER_ADMIN {
+		for _, id := range ids {
+			var targetUser model.User
+			has, _ := c.Db.Where("id = ?", id).Get(&targetUser)
+			if has && targetUser.Role >= adminInfo.Role {
+				return c.Error(nil, "Cannot delete users with equal or higher role")
+			}
+		}
+	}
+	
 	_, err = c.Db.In("id", ids).Delete(&model.User{})
 	if err != nil {
 		return c.Error(nil, err.Error())

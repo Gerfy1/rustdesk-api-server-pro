@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Rustdesk Api Server',
+    title: 'MT Remoto Control',
     updateTitle: '系统版本更新通知',
     updateContent: '检测到系统有新版本发布，是否立即刷新页面？',
     updateConfirm: '立即刷新',
@@ -8,6 +8,7 @@ const local: App.I18n.Schema = {
   },
   common: {
     action: '操作',
+    all: '全部',
     add: '新增',
     addSuccess: '添加成功',
     backToHome: '返回首页',
@@ -165,7 +166,9 @@ const local: App.I18n.Schema = {
     system_mail_logs: '邮件日志',
     system_mail: '邮件管理',
     audit_baselogs: '基础日志',
-    audit_filetransferlogs: '文件传输日志'
+    audit_filetransferlogs: '文件传输日志',
+    'address-books': '通讯录',
+    devices: '设备管理'
   },
   page: {
     login: {
@@ -190,9 +193,11 @@ const local: App.I18n.Schema = {
     },
     home: {
       greeting: '你好，{userName}, 今天又是充满活力的一天!',
-      friendlySponsorship: '友情赞助',
-      cupOfCoffee: '可以请我喝杯咖啡吗？',
-      thankYou: '感谢您的赞助',
+      realtimeStats: '实时统计',
+      devicesOnline: '在线',
+      devicesOffline: '离线',
+      totalDevices: '设备总数',
+      activeConnections: '活跃连接',
       userCount: '用户数量',
       deviceCount: '主机数量',
       onlineCount: '在线数量',
@@ -221,6 +226,10 @@ const local: App.I18n.Schema = {
       },
       audit: {
         logsSearchPlaceholder: '用户名、行为、RustdeskID、IP'
+      },
+      devices: {
+        title: '设备',
+        searchPlaceholder: '主机名、用户名、RustdeskID'
       }
     },
     system: {
@@ -269,6 +278,7 @@ const local: App.I18n.Schema = {
       login_verify: '登录验证',
       status: '状态',
       is_admin: '管理员',
+      role: '角色',
       tfa_secret: '双重认证密钥',
       tfa_code: '双重认证码',
       created_at: '创建时间',
@@ -281,11 +291,33 @@ const local: App.I18n.Schema = {
         none: '无需验证',
         emailCheck: '邮件验证',
         tfaCheck: '双重认证'
+      },
+      roleLabel: {
+        user: '用户',
+        support: '技术支持',
+        supportN2: '技术支持 N2',
+        superAdmin: '超级管理员'
       }
     },
     session: {
       expired: '过期时间',
       created_at: '创建时间'
+    },
+    device: {
+      username: '用户名',
+      hostname: '计算机名',
+      version: 'Rustdesk版本',
+      memory: '内存',
+      os: '操作系统',
+      rustdesk_id: 'Rustdesk ID',
+      ip_address: 'IP地址',
+      conns: '连接数',
+      last_seen_at: '最后在线',
+      is_online: '状态',
+      statusLabel: {
+        online: '在线',
+        offline: '离线'
+      }
     },
     audit: {
       username: '用户名',

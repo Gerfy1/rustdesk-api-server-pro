@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Rustdesk Api Server',
+    title: 'MT Remoto Control',
     updateTitle: 'System Version Update Notification',
     updateContent: 'A new version of the system has been detected. Do you want to refresh the page immediately?',
     updateConfirm: 'Refresh immediately',
@@ -8,6 +8,7 @@ const local: App.I18n.Schema = {
   },
   common: {
     action: 'Action',
+    all: 'All',
     add: 'Add',
     addSuccess: 'Add Success',
     backToHome: 'Back to home',
@@ -166,6 +167,7 @@ const local: App.I18n.Schema = {
     system_mail: 'Mail Managment',
     audit_baselogs: 'Base Logs',
     audit_filetransferlogs: 'File Transfer Logs',
+    'address-books': 'Address Books',
     devices: 'Devices',
   },
   page: {
@@ -191,9 +193,11 @@ const local: App.I18n.Schema = {
     },
     home: {
       greeting: 'Good morning, {userName}, today is another day full of vitality!',
-      friendlySponsorship: 'Friendly sponsorship',
-      cupOfCoffee: 'Can you treat me to a cup of coffee?',
-      thankYou: 'Thank you for your sponsorship',
+      realtimeStats: 'Real-time Statistics',
+      devicesOnline: 'Online',
+      devicesOffline: 'Offline',
+      totalDevices: 'Total Devices',
+      activeConnections: 'Active Connections',
       userCount: 'User Count',
       deviceCount: 'Device Count',
       onlineCount: 'Online Count',
@@ -222,6 +226,10 @@ const local: App.I18n.Schema = {
       },
       audit: {
         logsSearchPlaceholder: 'Username\\Action\\RustdeskID\\IP'
+      },
+      devices: {
+        title: 'Devices',
+        searchPlaceholder: 'Hostname\\Username\\RustdeskID'
       }
     },
     system: {
@@ -270,6 +278,7 @@ const local: App.I18n.Schema = {
       login_verify: 'Login Verify',
       status: 'Status',
       is_admin: 'Is Admin',
+      role: 'Role',
       tfa_secret: '2FA Secret',
       tfa_code: '2FA Code',
       created_at: 'Created At',
@@ -282,6 +291,12 @@ const local: App.I18n.Schema = {
         none: 'None',
         emailCheck: 'Email Check',
         tfaCheck: '2FA'
+      },
+      roleLabel: {
+        user: 'User',
+        support: 'Support',
+        supportN2: 'Support N2',
+        superAdmin: 'Super Admin'
       }
     },
     session: {
@@ -295,6 +310,14 @@ const local: App.I18n.Schema = {
         memory: 'Memory',
         os: 'OS',
         rustdesk_id: 'Rustdesk ID',
+        ip_address: 'IP Address',
+        conns: 'Connections',
+        last_seen_at: 'Last Seen',
+        is_online: 'Status',
+        statusLabel: {
+          online: 'Online',
+          offline: 'Offline'
+        }
     },
     audit: {
       username: 'Username',

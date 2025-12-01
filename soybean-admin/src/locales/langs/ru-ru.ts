@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Rustdesk Api Server',
+    title: 'MT Remoto Control',
     updateTitle: 'Уведомление об обновлении версии системы',
     updateContent: 'Обнаружена новая версия системы. Хотите обновить страницу немедленно?',
     updateConfirm: 'Обновить немедленно',
@@ -8,6 +8,7 @@ const local: App.I18n.Schema = {
   },
   common: {
     action: 'Действие',
+    all: 'Все',
     add: 'Добавить',
     addSuccess: 'Успешно добавлено',
     backToHome: 'Назад к обзору',
@@ -166,7 +167,9 @@ const local: App.I18n.Schema = {
     system_mail_logs: 'Журнал почты',
     system_mail: 'Управление почтой',
     audit_baselogs: 'Базовый журнал',
-    audit_filetransferlogs: 'Журнал передачи файлов'
+    audit_filetransferlogs: 'Журнал передачи файлов',
+    'address-books': 'Адресная книга',
+    devices: 'Устройства'
   },
   page: {
     login: {
@@ -191,9 +194,11 @@ const local: App.I18n.Schema = {
     },
     home: {
       greeting: 'Доброго утра, {userName}, сегодня еще один день, полный приключений!',
-      friendlySponsorship: 'Дружеское спонсорство',
-      cupOfCoffee: 'Как насчет чашечки кофе для меня?',
-      thankYou: 'Спасибо за твоё спонсорство!',
+      realtimeStats: 'Статистика в реальном времени',
+      devicesOnline: 'Онлайн',
+      devicesOffline: 'Оффлайн',
+      totalDevices: 'Всего устройств',
+      activeConnections: 'Активные подключения',
       userCount: 'Пользователей',
       deviceCount: 'Устройств',
       onlineCount: 'Сейчас онлайн',
@@ -222,6 +227,10 @@ const local: App.I18n.Schema = {
       },
       audit: {
         logsSearchPlaceholder: 'Username\\Action\\RustdeskID\\IP'
+      },
+      devices: {
+        title: 'Устройства',
+        searchPlaceholder: 'Имя компьютера\\Пользователь\\RustdeskID'
       }
     },
     system: {
@@ -270,6 +279,7 @@ const local: App.I18n.Schema = {
       login_verify: 'Проверен',
       status: 'Статус',
       is_admin: 'Админ',
+      role: 'Роль',
       tfa_secret: '2FA секрет',
       tfa_code: '2FA код',
       created_at: 'Создан',
@@ -282,11 +292,33 @@ const local: App.I18n.Schema = {
         none: 'None',
         emailCheck: 'Email',
         tfaCheck: '2FA'
+      },
+      roleLabel: {
+        user: 'Пользователь',
+        support: 'Поддержка',
+        supportN2: 'Поддержка N2',
+        superAdmin: 'Супер Админ'
       }
     },
     session: {
       expired: 'Истекает',
       created_at: 'Создана'
+    },
+    device: {
+      username: 'Имя пользователя',
+      hostname: 'Имя компьютера',
+      version: 'Версия Rustdesk',
+      memory: 'Память',
+      os: 'ОС',
+      rustdesk_id: 'Rustdesk ID',
+      ip_address: 'IP-адрес',
+      conns: 'Подключения',
+      last_seen_at: 'Последний раз в сети',
+      is_online: 'Статус',
+      statusLabel: {
+        online: 'В сети',
+        offline: 'Не в сети'
+      }
     },
     audit: {
       username: 'Имя',
