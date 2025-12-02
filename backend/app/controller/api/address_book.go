@@ -373,3 +373,116 @@ func (c *AddressBookController) PostAbSharedProfiles() mvc.Result {
 		},
 	}
 }
+
+// GetAbGet handles GET /api/ab/get?name=xxx - Returns peers for a specific address book
+func (c *AddressBookController) GetAbGet() mvc.Result {
+	user := c.GetUser()
+	abName := c.Ctx.URLParam("name")
+	
+	if abName == "" {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": "Address book name is required",
+			},
+		}
+	}
+
+	// Find the address book by name and user
+	var ab model.AddressBook
+	hasAb, err := c.Db.Where("user_id = ? AND name = ?", user.Id, abName).Get(&ab)
+	if err != nil {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": err.Error(),
+			},
+		}
+	}
+
+	if !hasAb {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": "Address book not found",
+			},
+		}
+	}
+
+	// Get tags for this address book
+	tagList := make([]model.AddressBookTag, 0)
+	err = c.Db.Where("ab_id = ?", ab.Id).Find(&tagList)
+	if err != nil {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": err.Error(),
+			},
+		}
+	}
+
+	tags := make([]string, 0)
+	tagColors := make(map[string]int64)
+	for _, tag := range tagList {
+		tags = append(tags, tag.Name)
+		tagColors[tag.Name] = tag.Color
+	}
+
+	// Get peers for this address book
+	peerList := make([]model.Peer, 0)
+	err = c.Db.Where("ab_id = ?", ab.Id).Find(&peerList)
+	if err != nil {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": err.Error(),
+			},
+		}
+	}
+
+	peers := make([]iris.Map, 0)
+	for _, peer := range peerList {
+		var peerTags []string
+		if peer.Tags != "" {
+			err := json.Unmarshal([]byte(peer.Tags), &peerTags)
+			if err != nil {
+				peerTags = []string{}
+			}
+		}
+
+		peers = append(peers, iris.Map{
+			"id":       peer.RustdeskId,
+			"hash":     peer.Hash,
+			"username": peer.Username,
+			"hostname": peer.Hostname,
+			"platform": peer.Platform,
+			"alias":    peer.Alias,
+			"tags":     peerTags,
+		})
+	}
+
+	tagColorsJson, err := json.Marshal(tagColors)
+	if err != nil {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": err.Error(),
+			},
+		}
+	}
+
+	data := iris.Map{
+		"tags":       tags,
+		"peers":      peers,
+		"tag_colors": string(tagColorsJson),
+	}
+
+	dataStr, err := json.Marshal(data)
+	if err != nil {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": err.Error(),
+			},
+		}
+	}
+
+	return mvc.Response{
+		Object: iris.Map{
+			"data": string(dataStr),
+		},
+	}
+}

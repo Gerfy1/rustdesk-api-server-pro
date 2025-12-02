@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import { NTag, NBadge, NDataTable, NButton, NSpace, NPopconfirm } from 'naive-ui';
 import { fetchAddressBookPeers, importDevicesAsPeers } from '@/service/api/address-books';
+import AddPeerModal from './add-peer-modal.vue';
 
 defineOptions({
   name: 'PeersDrawer'
@@ -18,6 +19,9 @@ const visible = defineModel<boolean>('visible', { required: true });
 
 const loading = ref(false);
 const peers = ref<Api.AddressBooks.Peer[]>([]);
+
+// Add Peer Modal state
+const addPeerModalVisible = ref(false);
 
 // Helper function to format relative time
 const formatRelativeTime = (dateString: string) => {
@@ -131,6 +135,14 @@ async function handleImportDevices() {
   }
 }
 
+function handleAddPeer() {
+  addPeerModalVisible.value = true;
+}
+
+async function handleAddPeerSuccess() {
+  await loadPeers(); // Reload peers after adding
+}
+
 function handleClose() {
   visible.value = false;
 }
@@ -149,17 +161,25 @@ function handleClose() {
               Online: <NBadge :value="peers.filter((p: Api.AddressBooks.Peer) => p.is_online).length" type="success" />
             </NText>
           </NSpace>
-          <NPopconfirm @positive-click="handleImportDevices">
-            <template #trigger>
-              <NButton type="primary" size="small" :loading="loading">
-                <template #icon>
-                  <icon-mdi-cloud-download class="text-icon" />
-                </template>
-                Importar Devices Online
-              </NButton>
-            </template>
-            Importar todos os dispositivos online como peers? Dispositivos já existentes serão ignorados.
-          </NPopconfirm>
+          <NSpace>
+            <NButton type="success" size="small" @click="handleAddPeer">
+              <template #icon>
+                <icon-mdi-plus class="text-icon" />
+              </template>
+              Adicionar Peer
+            </NButton>
+            <NPopconfirm @positive-click="handleImportDevices">
+              <template #trigger>
+                <NButton type="primary" size="small" :loading="loading">
+                  <template #icon>
+                    <icon-mdi-cloud-download class="text-icon" />
+                  </template>
+                  Importar Devices Online
+                </NButton>
+              </template>
+              Importar todos os dispositivos online como peers? Dispositivos já existentes serão ignorados.
+            </NPopconfirm>
+          </NSpace>
         </NSpace>
 
         <NDataTable
@@ -179,6 +199,14 @@ function handleClose() {
       </template>
     </NDrawerContent>
   </NDrawer>
+
+  <!-- Add Peer Modal -->
+  <AddPeerModal
+    v-model:visible="addPeerModalVisible"
+    :address-book-id="addressBookId"
+    :address-book-name="addressBookName"
+    @success="handleAddPeerSuccess"
+  />
 </template>
 
 <style scoped></style>

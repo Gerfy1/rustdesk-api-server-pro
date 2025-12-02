@@ -22,6 +22,7 @@ func (c *AddressBooksController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("DELETE", "/address-books/{id:int}", "HandleDelete")
 	b.Handle("GET", "/address-books/{id:int}/peers", "HandleGetPeers")
 	b.Handle("POST", "/address-books/{id:int}/import-devices", "HandleImportDevices")
+	b.Handle("POST", "/address-books/{id:int}/peers", "HandleAddPeer")
 }
 
 // HandleList - List all address books with pagination
@@ -335,5 +336,82 @@ func (c *AddressBooksController) HandleImportDevices() mvc.Result {
 		"skipped":  skippedCount,
 		"total":    len(deviceList),
 	}, "ok")
+}
+
+// HandleAddPeer - Add a peer manually to an address book
+func (c *AddressBooksController) HandleAddPeer() mvc.Result {
+	abId, err := c.Ctx.Params().GetInt("id")
+	if err != nil {
+		return c.Error(500, "Invalid address book ID")
+	}
+
+	// Verify address book exists
+	var ab model.AddressBook
+	has, err := c.Db.Where("id = ?", abId).Get(&ab)
+	if err != nil {
+		return c.Error(500, err.Error())
+	}
+	if !has {
+		return c.Error(404, "Address book not found")
+	}
+
+	// Parse request body
+	type AddPeerForm struct {
+		AbId       int    `json:"ab_id"`
+		RustdeskId string `json:"rustdesk_id"`
+		Alias      string `json:"alias"`
+		Password   string `json:"password"`
+		Hostname   string `json:"hostname"`
+		Username   string `json:"username"`
+		Platform   string `json:"platform"`
+		Tags       string `json:"tags"`
+	}
+
+	var form AddPeerForm
+	err = c.Ctx.ReadJSON(&form)
+	if err != nil {
+		return c.Error(400, "Invalid request body")
+	}
+
+	// Validate required fields
+	if form.RustdeskId == "" {
+		return c.Error(400, "RustDesk ID is required")
+	}
+
+	// Check if peer already exists
+	var existingPeer model.Peer
+	has, _ = c.Db.Where("rustdesk_id = ? AND ab_id = ?", form.RustdeskId, ab.Id).Get(&existingPeer)
+	if has {
+		return c.Error(400, "Peer with this RustDesk ID already exists in this address book")
+	}
+
+	// Create new peer
+	peer := model.Peer{
+		UserId:     ab.UserId,
+		AbId:       ab.Id,
+		RustdeskId: form.RustdeskId,
+		Alias:      form.Alias,
+		Password:   form.Password,
+		Hostname:   form.Hostname,
+		Username:   form.Username,
+		Platform:   form.Platform,
+		Tags:       form.Tags,
+	}
+
+	// If tags is empty, set to empty array
+	if peer.Tags == "" {
+		peer.Tags = "[]"
+	}
+
+	_, err = c.Db.Insert(&peer)
+	if err != nil {
+		return c.Error(500, "Failed to create peer: "+err.Error())
+	}
+
+	return c.Success(iris.Map{
+		"id":          peer.Id,
+		"rustdesk_id": peer.RustdeskId,
+		"alias":       peer.Alias,
+	}, "Peer created successfully")
 }
 
