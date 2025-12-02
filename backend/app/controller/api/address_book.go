@@ -19,51 +19,120 @@ type AddressBookController struct {
 
 func (c *AddressBookController) GetAb() mvc.Result {
 	user := c.GetUser()
-	tagList := make([]model.Tags, 0)
-	err := c.Db.Where("user_id = ?", user.Id).Find(&tagList)
+	
+	// Check if user has a Personal AddressBook in the new system
+	var personalAb model.AddressBook
+	hasPersonalAb, err := c.Db.Where("user_id = ? AND name = ?", user.Id, model.PersonalAddressBookName).Get(&personalAb)
 	if err != nil {
 		return mvc.Response{
 			Object: iris.Map{
 				"error": err.Error(),
 			},
 		}
-	}
-	tags := make([]string, 0)
-	tagColors := make(map[string]int64)
-	for _, tag := range tagList {
-		tags = append(tags, tag.Tag)
-		colorCode, err := strconv.ParseInt(tag.Color, 10, 64)
-		if err != nil {
-			continue
-		}
-		tagColors[tag.Tag] = colorCode
 	}
 
-	peerList := make([]model.Peer, 0)
-	err = c.Db.Where("user_id = ?", user.Id).Find(&peerList)
-	if err != nil {
-		return mvc.Response{
-			Object: iris.Map{
-				"error": err.Error(),
-			},
-		}
-	}
-	peers := make([]iris.Map, 0)
-	for _, peer := range peerList {
-		var peerTags []string
-		err := json.Unmarshal([]byte(peer.Tags), &peerTags)
+	// If Personal AddressBook exists, use it; otherwise fall back to old Tags system
+	var tags []string
+	var tagColors map[string]int64
+	var peers []iris.Map
+
+	if hasPersonalAb {
+		// Use new AddressBook system
+		tagList := make([]model.AddressBookTag, 0)
+		err = c.Db.Where("ab_id = ?", personalAb.Id).Find(&tagList)
 		if err != nil {
-			continue
+			return mvc.Response{
+				Object: iris.Map{
+					"error": err.Error(),
+				},
+			}
 		}
-		peers = append(peers, iris.Map{
-			"id":       peer.RustdeskId,
-			"hash":     peer.Hash,
-			"username": peer.Username,
-			"hostname": peer.Hostname,
-			"platform": peer.Platform,
-			"alias":    peer.Alias,
-			"tags":     peerTags,
-		})
+		
+		tags = make([]string, 0)
+		tagColors = make(map[string]int64)
+		for _, tag := range tagList {
+			tags = append(tags, tag.Name)
+			tagColors[tag.Name] = tag.Color
+		}
+
+		// Get peers from AddressBook
+		peerList := make([]model.Peer, 0)
+		err = c.Db.Where("ab_id = ?", personalAb.Id).Find(&peerList)
+		if err != nil {
+			return mvc.Response{
+				Object: iris.Map{
+					"error": err.Error(),
+				},
+			}
+		}
+		
+		peers = make([]iris.Map, 0)
+		for _, peer := range peerList {
+			var peerTags []string
+			err := json.Unmarshal([]byte(peer.Tags), &peerTags)
+			if err != nil {
+				peerTags = []string{}
+			}
+			peers = append(peers, iris.Map{
+				"id":       peer.RustdeskId,
+				"hash":     peer.Hash,
+				"username": peer.Username,
+				"hostname": peer.Hostname,
+				"platform": peer.Platform,
+				"alias":    peer.Alias,
+				"tags":     peerTags,
+			})
+		}
+	} else {
+		// Fall back to old Tags/Peer system for backward compatibility
+		tagList := make([]model.Tags, 0)
+		err = c.Db.Where("user_id = ?", user.Id).Find(&tagList)
+		if err != nil {
+			return mvc.Response{
+				Object: iris.Map{
+					"error": err.Error(),
+				},
+			}
+		}
+		
+		tags = make([]string, 0)
+		tagColors = make(map[string]int64)
+		for _, tag := range tagList {
+			tags = append(tags, tag.Tag)
+			colorCode, err := strconv.ParseInt(tag.Color, 10, 64)
+			if err != nil {
+				continue
+			}
+			tagColors[tag.Tag] = colorCode
+		}
+
+		peerList := make([]model.Peer, 0)
+		err = c.Db.Where("user_id = ?", user.Id).Find(&peerList)
+		if err != nil {
+			return mvc.Response{
+				Object: iris.Map{
+					"error": err.Error(),
+				},
+			}
+		}
+		
+		peers = make([]iris.Map, 0)
+		for _, peer := range peerList {
+			var peerTags []string
+			err := json.Unmarshal([]byte(peer.Tags), &peerTags)
+			if err != nil {
+				peerTags = []string{}
+			}
+			peers = append(peers, iris.Map{
+				"id":       peer.RustdeskId,
+				"hash":     peer.Hash,
+				"username": peer.Username,
+				"hostname": peer.Hostname,
+				"platform": peer.Platform,
+				"alias":    peer.Alias,
+				"tags":     peerTags,
+			})
+		}
 	}
 
 	tagColorsJson, err := json.Marshal(tagColors)
