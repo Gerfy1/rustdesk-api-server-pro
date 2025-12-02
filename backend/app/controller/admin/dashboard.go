@@ -102,7 +102,8 @@ func (c *DashboardController) GetDashboardPieCharts() mvc.Result {
 		Name  string `json:"name"`
 	}
 	pieMap := make([]pieChartsData, 0)
-	err := c.Db.Table(&model.Peer{}).GroupBy("platform").Select("case when `platform` = '' then 'unknown' else `platform` end as `name`, count(*) as `value`").Find(&pieMap)
+	// Get OS distribution from devices table instead of peers
+	err := c.Db.Table(&model.Device{}).GroupBy("os").Select("case when `os` = '' then 'Unknown' else `os` end as `name`, count(*) as `value`").Find(&pieMap)
 	if err != nil {
 		return c.Error(nil, err.Error())
 	}
