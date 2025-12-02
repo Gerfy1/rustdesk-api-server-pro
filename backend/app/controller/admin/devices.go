@@ -107,8 +107,6 @@ func (c *DevicesController) HandleOnlineList() mvc.Result {
 		})
 	}
 
-	return c.Success(iris.Map{
-		"total":   len(list),
-		"records": list,
-	}, "ok")
+	// Return array directly for frontend compatibility
+	return c.Success(list, "ok")
 }
