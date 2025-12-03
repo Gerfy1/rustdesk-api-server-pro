@@ -529,12 +529,17 @@ func (c *AddressBookController) PostAbTags() mvc.Result {
 		tagMap[tag.Name] = tag.Color
 	}
 
-	// Convert to array
-	tags := make([]iris.Map, 0)
+	// Convert to array of maps (proper JSON structure)
+	type TagResponse struct {
+		Name  string `json:"name"`
+		Color int64  `json:"color"`
+	}
+	
+	tags := make([]TagResponse, 0)
 	for name, color := range tagMap {
-		tags = append(tags, iris.Map{
-			"name":  name,
-			"color": color,
+		tags = append(tags, TagResponse{
+			Name:  name,
+			Color: color,
 		})
 	}
 
