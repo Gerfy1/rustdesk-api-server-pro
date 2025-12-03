@@ -546,9 +546,9 @@ func (c *AddressBookController) PostAbTags() mvc.Result {
 	// Log for debugging
 	c.Ctx.Application().Logger().Infof("PostAbTags: Found %d tags for user %d", len(tags), user.Id)
 
+	// Return array directly without wrapping in "data" key
+	// RustDesk 1.4.x expects: [{"name":"tag1","color":4278190335}, ...]
 	return mvc.Response{
-		Object: iris.Map{
-			"data": tags,
-		},
+		Object: tags,
 	}
 }
