@@ -72,7 +72,7 @@ onMounted(() => {
                   </NTag>
                 </template>
                 <NSpace justify="space-between" style="width: 100%">
-                  <NText strong style="font-family: monospace; font-size: 12px">{{ device.rustdesk_id }}</NText>
+                  <NText strong style="font-size: 12px">{{ device.rustdesk_id }}</NText>
                   <NBadge :value="device.count" type="info" />
                 </NSpace>
               </NListItem>

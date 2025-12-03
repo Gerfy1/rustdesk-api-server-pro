@@ -138,9 +138,9 @@ async function handleRustdeskIdBlur() {
       if (!formModel.value.username) {
         formModel.value.username = device.username || '';
       }
-      // Alias = nome amigável, usar hostname como padrão
+      // Alias = RustDesk ID to show correctly in RustDesk client
       if (!formModel.value.alias) {
-        formModel.value.alias = device.hostname || device.rustdesk_id || '';
+        formModel.value.alias = device.rustdesk_id || device.hostname || '';
       }
       if (!formModel.value.platform || formModel.value.platform === 'Windows') {
         formModel.value.platform = device.os || 'Windows';

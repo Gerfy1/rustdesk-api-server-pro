@@ -60,7 +60,7 @@ const columns = [
     width: 140,
     render: (row: Api.AddressBooks.Peer) => {
       // Show rustdesk_id (the actual unique identifier)
-      return <span style="font-weight: 500; font-family: monospace">{row.rustdesk_id}</span>;
+      return <span style="font-weight: 500">{row.rustdesk_id}</span>;
     }
   },
   {

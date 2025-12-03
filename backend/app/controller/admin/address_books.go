@@ -366,7 +366,7 @@ func (c *AddressBooksController) HandleImportDevices() mvc.Result {
 			Username:   device.Username,
 			Hostname:   device.Hostname,
 			Platform:   device.Os,
-			Alias:      device.Hostname, // Use hostname as default alias
+			Alias:      device.RustdeskId, // Use RustDesk ID as alias so it shows correctly in client
 			Tags:       "[]",
 		}
 
