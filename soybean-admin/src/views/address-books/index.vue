@@ -67,15 +67,9 @@ const {
       width: 100,
       render: (row: any) => {
         return (
-          <NButton
-            text
-            type="primary"
-            onClick={() => viewPeers(row)}
-          >
-            <NTag type="info" size="small">
-              {row.peer_count} peers
-            </NTag>
-          </NButton>
+          <NTag type="info" size="small">
+            {row.peer_count} peers
+          </NTag>
         );
       }
     },
@@ -126,12 +120,15 @@ const {
       key: 'actions',
       title: 'Ações',
       align: 'center',
-      width: 180,
+      width: 280,
       fixed: 'right',
       render: (row: any) => {
         return (
           <NSpace justify="center">
-            <NButton size="small" type="primary" onClick={() => handleEdit(row)}>
+            <NButton size="small" type="info" onClick={() => viewPeers(row)}>
+              Ver Peers
+            </NButton>
+            <NButton size="small" type="success" onClick={() => handleEdit(row)}>
               Editar
             </NButton>
             <NPopconfirm onPositiveClick={() => handleDelete(row.id)}>

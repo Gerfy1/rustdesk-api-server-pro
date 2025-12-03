@@ -98,6 +98,29 @@ const columns = [
       const relativeTime = formatRelativeTime(row.last_seen_at);
       return <span title={row.last_seen_at}>{relativeTime}</span>;
     }
+  },
+  {
+    key: 'actions',
+    title: 'Ações',
+    align: 'center' as const,
+    width: 100,
+    render: (row: Api.AddressBooks.Peer) => {
+      return (
+        <NPopconfirm onPositiveClick={() => handleDeletePeer(row.id)}>
+          {{
+            default: () => 'Tem certeza que deseja deletar este peer?',
+            trigger: () => (
+              <NButton type="error" size="small" quaternary>
+                {{
+                  icon: () => <icon-mdi-delete class="text-icon" />,
+                  default: () => 'Deletar'
+                }}
+              </NButton>
+            )
+          }}
+        </NPopconfirm>
+      );
+    }
   }
 ];
 
@@ -135,6 +158,26 @@ async function handleImportDevices() {
   }
 }
 
+async function handleDeletePeer(peerId: number) {
+  loading.value = true;
+  try {
+    const { request } = await import('@/service/request');
+    
+    await request({
+      url: `/address-books/${props.addressBookId}/peers/${peerId}`,
+      method: 'delete'
+    });
+
+    window.$message?.success('Peer deletado com sucesso!');
+    await loadPeers(); // Reload peers list
+  } catch (error) {
+    console.error('Erro ao deletar peer:', error);
+    window.$message?.error('Erro ao deletar peer');
+  } finally {
+    loading.value = false;
+  }
+}
+
 function handleAddPeer() {
   addPeerModalVisible.value = true;
 }
@@ -152,42 +195,44 @@ function handleClose() {
   <NDrawer v-model:show="visible" :width="1000" placement="right">
     <NDrawerContent :title="`Peers em: ${addressBookName}`" closable>
       <div class="flex-col gap-16px">
-        <NSpace justify="space-between" align="center">
-          <NSpace>
-            <NText>
-              Total de peers: <NBadge :value="peers.length" type="info" />
+        <!-- Barra de estatísticas e ações principais -->
+        <NCard :bordered="false" size="small" class="shadow-sm">
+          <NSpace justify="space-between" align="center">
+            <NText strong>
+              Total de Peers: {{ peers.length }}
             </NText>
-            <NText v-if="peers.filter((p: Api.AddressBooks.Peer) => p.is_online).length > 0">
-              Online: <NBadge :value="peers.filter((p: Api.AddressBooks.Peer) => p.is_online).length" type="success" />
-            </NText>
+            
+            <!-- Botões de ação em destaque -->
+            <NSpace>
+              <NButton type="success" size="medium" strong @click="handleAddPeer">
+                <template #icon>
+                  <icon-mdi-account-plus class="text-icon" />
+                </template>
+                Adicionar Peer Manualmente
+              </NButton>
+              
+              <NPopconfirm @positive-click="handleImportDevices">
+                <template #trigger>
+                  <NButton type="primary" size="medium" :loading="loading">
+                    <template #icon>
+                      <icon-mdi-cloud-download class="text-icon" />
+                    </template>
+                    Importar Devices Online
+                  </NButton>
+                </template>
+                Importar todos os dispositivos online como peers? Dispositivos já existentes serão ignorados.
+              </NPopconfirm>
+            </NSpace>
           </NSpace>
-          <NSpace>
-            <NButton type="success" size="small" @click="handleAddPeer">
-              <template #icon>
-                <icon-mdi-plus class="text-icon" />
-              </template>
-              Adicionar Peer
-            </NButton>
-            <NPopconfirm @positive-click="handleImportDevices">
-              <template #trigger>
-                <NButton type="primary" size="small" :loading="loading">
-                  <template #icon>
-                    <icon-mdi-cloud-download class="text-icon" />
-                  </template>
-                  Importar Devices Online
-                </NButton>
-              </template>
-              Importar todos os dispositivos online como peers? Dispositivos já existentes serão ignorados.
-            </NPopconfirm>
-          </NSpace>
-        </NSpace>
+        </NCard>
 
+        <!-- Tabela de peers -->
         <NDataTable
           :columns="columns"
           :data="peers"
           :loading="loading"
           size="small"
-          :scroll-x="1100"
+          :scroll-x="1200"
           :max-height="600"
         />
       </div>

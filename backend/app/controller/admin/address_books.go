@@ -23,6 +23,7 @@ func (c *AddressBooksController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET", "/address-books/{id:int}/peers", "HandleGetPeers")
 	b.Handle("POST", "/address-books/{id:int}/import-devices", "HandleImportDevices")
 	b.Handle("POST", "/address-books/{id:int}/peers", "HandleAddPeer")
+	b.Handle("DELETE", "/address-books/{id:int}/peers/{peerId:int}", "HandleDeletePeer")
 }
 
 // HandleList - List all address books with pagination
@@ -413,5 +414,48 @@ func (c *AddressBooksController) HandleAddPeer() mvc.Result {
 		"rustdesk_id": peer.RustdeskId,
 		"alias":       peer.Alias,
 	}, "Peer created successfully")
+}
+
+// HandleDeletePeer - Delete a peer from an address book
+func (c *AddressBooksController) HandleDeletePeer() mvc.Result {
+	abId, err := c.Ctx.Params().GetInt("id")
+	if err != nil {
+		return c.Error(500, "Invalid address book ID")
+	}
+
+	peerId, err := c.Ctx.Params().GetInt("peerId")
+	if err != nil {
+		return c.Error(500, "Invalid peer ID")
+	}
+
+	// Verify address book exists
+	var ab model.AddressBook
+	has, err := c.Db.Where("id = ?", abId).Get(&ab)
+	if err != nil {
+		return c.Error(500, err.Error())
+	}
+	if !has {
+		return c.Error(404, "Address book not found")
+	}
+
+	// Verify peer exists and belongs to this address book
+	var peer model.Peer
+	has, err = c.Db.Where("id = ? AND ab_id = ?", peerId, ab.Id).Get(&peer)
+	if err != nil {
+		return c.Error(500, err.Error())
+	}
+	if !has {
+		return c.Error(404, "Peer not found in this address book")
+	}
+
+	// Delete the peer
+	_, err = c.Db.ID(peerId).Delete(&model.Peer{})
+	if err != nil {
+		return c.Error(500, "Failed to delete peer: "+err.Error())
+	}
+
+	return c.Success(iris.Map{
+		"id": peerId,
+	}, "Peer deleted successfully")
 }
 

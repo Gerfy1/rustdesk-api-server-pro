@@ -43,6 +43,7 @@ const platformOptions = [
 ];
 
 const loading = ref(false);
+const searching = ref(false);
 
 watch(visible, (val) => {
   if (val) {
@@ -58,6 +59,62 @@ watch(visible, (val) => {
     };
   }
 });
+
+// Auto-fill device info when RustDesk ID is entered
+async function handleRustdeskIdBlur() {
+  if (!formModel.value.rustdesk_id || formModel.value.rustdesk_id.trim() === '') {
+    return;
+  }
+
+  // Only search if hostname is empty (don't override manual input)
+  if (formModel.value.hostname !== '') {
+    return;
+  }
+
+  searching.value = true;
+  try {
+    const { request } = await import('@/service/request');
+    
+    // Search for device by RustDesk ID
+    const response = await request({
+      url: '/devices/list',
+      method: 'get',
+      params: {
+        rustdesk_id: formModel.value.rustdesk_id.trim(),
+        current: 1,
+        size: 1
+      }
+    });
+
+    const data = response.data as any;
+    if (data && data.records && data.records.length > 0) {
+      const device = data.records[0];
+      
+      // Auto-fill fields if they're empty
+      if (!formModel.value.hostname) {
+        formModel.value.hostname = device.hostname || '';
+      }
+      if (!formModel.value.username) {
+        formModel.value.username = device.username || '';
+      }
+      if (!formModel.value.alias) {
+        formModel.value.alias = device.hostname || '';
+      }
+      if (!formModel.value.platform || formModel.value.platform === 'Windows') {
+        formModel.value.platform = device.os || 'Windows';
+      }
+
+      window.$message?.success('Informações do dispositivo preenchidas automaticamente!');
+    } else {
+      window.$message?.info('Dispositivo não encontrado. Preencha manualmente.');
+    }
+  } catch (error) {
+    console.error('Erro ao buscar dispositivo:', error);
+    // Não mostra erro, apenas deixa o usuário preencher manualmente
+  } finally {
+    searching.value = false;
+  }
+}
 
 async function handleSubmit() {
   await validate();
@@ -105,15 +162,27 @@ function handleClose() {
         <NFormItemGi :span="24" label="ID RustDesk" path="rustdesk_id">
           <NInput 
             v-model:value="formModel.rustdesk_id" 
-            placeholder="Digite o ID do RustDesk"
+            placeholder="Digite o ID do RustDesk e pressione Tab"
+            :loading="searching"
             :input-props="{ autocomplete: 'off' }"
-          />
+            @blur="handleRustdeskIdBlur"
+          >
+            <template #suffix>
+              <NTooltip v-if="!searching">
+                <template #trigger>
+                  <icon-mdi-information-outline class="text-icon" />
+                </template>
+                Auto-preenche os dados se o dispositivo estiver cadastrado
+              </NTooltip>
+              <NSpin v-else size="small" />
+            </template>
+          </NInput>
         </NFormItemGi>
         
         <NFormItemGi :span="24" label="Alias (Apelido)" path="alias">
           <NInput 
             v-model:value="formModel.alias" 
-            placeholder="Apelido para identificação"
+            placeholder="Preenchido automaticamente (editável)"
             :input-props="{ autocomplete: 'off' }"
           />
         </NFormItemGi>
@@ -123,7 +192,7 @@ function handleClose() {
             v-model:value="formModel.password" 
             type="password"
             show-password-on="click"
-            placeholder="Senha de acesso (opcional)"
+            placeholder="Senha de acesso permanente (opcional)"
             :input-props="{ autocomplete: 'new-password' }"
           />
         </NFormItemGi>
@@ -131,7 +200,7 @@ function handleClose() {
         <NFormItemGi :span="12" label="Hostname" path="hostname">
           <NInput 
             v-model:value="formModel.hostname" 
-            placeholder="Nome do host"
+            placeholder="Auto-preenchido (editável)"
             :input-props="{ autocomplete: 'off' }"
           />
         </NFormItemGi>
@@ -139,7 +208,7 @@ function handleClose() {
         <NFormItemGi :span="12" label="Username" path="username">
           <NInput 
             v-model:value="formModel.username" 
-            placeholder="Nome de usuário"
+            placeholder="Auto-preenchido (editável)"
             :input-props="{ autocomplete: 'off' }"
           />
         </NFormItemGi>
@@ -153,6 +222,15 @@ function handleClose() {
         
         <NFormItemGi :span="24" label="Tags" path="tags">
           <NDynamicTags v-model:value="formModel.tags" />
+        </NFormItemGi>
+        
+        <NFormItemGi :span="24">
+          <NAlert type="info" size="small">
+            <template #icon>
+              <icon-mdi-lightbulb-on-outline />
+            </template>
+             <strong>Dica:</strong> Digite o ID RustDesk e pressione Tab. Os campos serão preenchidos automaticamente se o dispositivo estiver cadastrado.
+          </NAlert>
         </NFormItemGi>
       </NGrid>
     </NForm>
