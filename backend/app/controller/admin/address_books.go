@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"encoding/json"
 	"rustdesk-api-server-pro/app/model"
 	"rustdesk-api-server-pro/config"
 	"rustdesk-api-server-pro/db"
@@ -117,12 +118,13 @@ func (c *AddressBooksController) HandleGet() mvc.Result {
 // HandleCreate - Create new address book
 func (c *AddressBooksController) HandleCreate() mvc.Result {
 	var form struct {
-		UserId  int    `json:"user_id"`
-		Name    string `json:"name"`
-		Note    string `json:"note"`
-		Rule    int    `json:"rule"`
-		MaxPeer int    `json:"max_peer"`
-		Shared  bool   `json:"shared"`
+		UserId  int      `json:"user_id"`
+		Name    string   `json:"name"`
+		Note    string   `json:"note"`
+		Rule    int      `json:"rule"`
+		MaxPeer int      `json:"max_peer"`
+		Shared  bool     `json:"shared"`
+		Tags    []string `json:"tags"`
 	}
 
 	if err := c.Ctx.ReadJSON(&form); err != nil {
@@ -154,6 +156,23 @@ func (c *AddressBooksController) HandleCreate() mvc.Result {
 	_, err = c.Db.Insert(&ab)
 	if err != nil {
 		return c.Error(nil, err.Error())
+	}
+
+	// Create tags if provided
+	if len(form.Tags) > 0 {
+		for _, tagName := range form.Tags {
+			if tagName == "" {
+				continue
+			}
+			
+			tag := model.AddressBookTag{
+				UserId: form.UserId,
+				AbId:   ab.Id,
+				Name:   tagName,
+				Color:  0xFF0000FF, // Default blue color
+			}
+			_, _ = c.Db.Insert(&tag)
+		}
 	}
 
 	return c.Success(iris.Map{
@@ -402,6 +421,32 @@ func (c *AddressBooksController) HandleAddPeer() mvc.Result {
 	// If tags is empty, set to empty array
 	if peer.Tags == "" {
 		peer.Tags = "[]"
+	}
+
+	// Parse tags and create AddressBookTag entries if they don't exist
+	var tagNames []string
+	err = json.Unmarshal([]byte(peer.Tags), &tagNames)
+	if err == nil && len(tagNames) > 0 {
+		// For each tag name, check if it exists in AddressBookTag
+		for _, tagName := range tagNames {
+			if tagName == "" {
+				continue
+			}
+			
+			var existingTag model.AddressBookTag
+			hasTag, _ := c.Db.Where("ab_id = ? AND name = ?", ab.Id, tagName).Get(&existingTag)
+			
+			if !hasTag {
+				// Create new tag with default color
+				newTag := model.AddressBookTag{
+					UserId: ab.UserId,
+					AbId:   ab.Id,
+					Name:   tagName,
+					Color:  0xFF0000FF, // Default blue color
+				}
+				_, _ = c.Db.Insert(&newTag)
+			}
+		}
 	}
 
 	_, err = c.Db.Insert(&peer)

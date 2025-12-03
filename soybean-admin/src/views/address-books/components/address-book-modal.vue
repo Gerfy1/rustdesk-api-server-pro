@@ -32,7 +32,8 @@ const formModel = ref({
   note: '',
   rule: 3,
   max_peer: 0,
-  shared: false
+  shared: false,
+  tags: [] as string[]
 });
 
 const ruleOptions = [
@@ -49,7 +50,8 @@ watch(visible, (val) => {
       note: props.record.note || '',
       rule: props.record.rule,
       max_peer: props.record.max_peer,
-      shared: props.record.shared
+      shared: props.record.shared,
+      tags: []
     };
   } else if (val && props.mode === 'add') {
     formModel.value = {
@@ -58,7 +60,8 @@ watch(visible, (val) => {
       note: '',
       rule: 3,
       max_peer: 0,
-      shared: false
+      shared: false,
+      tags: []
     };
   }
 });
@@ -119,6 +122,19 @@ function handleClose() {
           <template #checked>Sim</template>
           <template #unchecked>Não</template>
         </NSwitch>
+      </NFormItem>
+
+      <NFormItem label="Tags" path="tags">
+        <NDynamicTags v-model:value="formModel.tags" />
+      </NFormItem>
+      
+      <NFormItem>
+        <NAlert type="info" size="small">
+          <template #icon>
+            <icon-mdi-information-outline />
+          </template>
+          💡 Tags criadas aqui estarão disponíveis para organizar os peers deste Address Book.
+        </NAlert>
       </NFormItem>
     </NForm>
 

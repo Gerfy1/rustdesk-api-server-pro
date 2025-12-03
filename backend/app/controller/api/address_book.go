@@ -486,3 +486,48 @@ func (c *AddressBookController) GetAbGet() mvc.Result {
 		},
 	}
 }
+
+// PostAbTags handles POST /api/ab/tags - Returns tags for address books
+func (c *AddressBookController) PostAbTags() mvc.Result {
+	user := c.GetUser()
+	
+	// Get Personal AddressBook
+	var personalAb model.AddressBook
+	hasPersonalAb, err := c.Db.Where("user_id = ? AND name = ?", user.Id, model.PersonalAddressBookName).Get(&personalAb)
+	if err != nil {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": err.Error(),
+			},
+		}
+	}
+
+	// Get tags for this address book
+	tagList := make([]model.AddressBookTag, 0)
+	
+	if hasPersonalAb {
+		err = c.Db.Where("ab_id = ?", personalAb.Id).Find(&tagList)
+		if err != nil {
+			return mvc.Response{
+				Object: iris.Map{
+					"error": err.Error(),
+				},
+			}
+		}
+	}
+
+	// Format tags as array of objects with name and color
+	tags := make([]iris.Map, 0)
+	for _, tag := range tagList {
+		tags = append(tags, iris.Map{
+			"name":  tag.Name,
+			"color": tag.Color,
+		})
+	}
+
+	return mvc.Response{
+		Object: iris.Map{
+			"data": tags,
+		},
+	}
+}
