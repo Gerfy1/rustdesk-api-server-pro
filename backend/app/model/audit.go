@@ -4,8 +4,9 @@ import "time"
 
 type Audit struct {
 	Id         int       `xorm:"'id' int notnull pk autoincr"`
+	UserId     int       `xorm:"'user_id' int"`                // Qual usuário conectou
 	ConnId     int       `xorm:"'conn_id' int"`
-	RustdeskId string    `xorm:"'rustdesk_id' varchar(100)"`
+	RustdeskId string    `xorm:"'rustdesk_id' varchar(100)"` // Máquina que foi acessada
 	IP         string    `xorm:"'ip' varchar(15)"`
 	SessionId  string    `xorm:"'session_id' varchar(50)"`
 	Peer       string    `xorm:"'peer' text"`

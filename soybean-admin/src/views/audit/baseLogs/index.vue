@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { NTag } from 'naive-ui';
+import { NTag, NText } from 'naive-ui';
 import { fetchAuditLogList } from '@/service/api/audit';
 import { $t } from '@/locales';
 import { useAppStore } from '@/store/modules/app';
@@ -7,6 +7,7 @@ import { useTable } from '@/hooks/common/table';
 import { AuditTypeOptions } from '@/constants/business';
 import TableHeader from './components/table-header.vue';
 import AuditBaseLogsSearch from './components/search.vue';
+import AuditStats from './components/audit-stats.vue';
 
 const appStore = useAppStore();
 
@@ -68,6 +69,15 @@ const {
       }
     },
     {
+      key: 'username',
+      title: 'Usuário',
+      align: 'center',
+      width: 120,
+      render: row => {
+        return <NText strong>{row.username || '-'}</NText>;
+      }
+    },
+    {
       key: 'conn_id',
       title: $t('dataMap.audit.conn_id'),
       align: 'center'
@@ -101,16 +111,57 @@ const {
       key: 'closed_at',
       title: $t('dataMap.audit.closed_at'),
       align: 'center'
+    },
+    {
+      key: 'duration',
+      title: 'Duração',
+      align: 'center',
+      render: row => {
+        if (!row.closed_at || !row.created_at) {
+          return <NTag size="small" type="default">-</NTag>;
+        }
+        
+        try {
+          const start = new Date(row.created_at).getTime();
+          const end = new Date(row.closed_at).getTime();
+          const diffSeconds = Math.floor((end - start) / 1000);
+          
+          if (diffSeconds < 0) {
+            return <NTag size="small" type="default">-</NTag>;
+          }
+          
+          let duration = '';
+          if (diffSeconds < 60) {
+            duration = `${diffSeconds}s`;
+          } else {
+            const minutes = Math.floor(diffSeconds / 60);
+            if (minutes < 60) {
+              duration = `${minutes}min`;
+            } else {
+              const hours = Math.floor(minutes / 60);
+              const remainingMinutes = minutes % 60;
+              duration = `${hours}h ${remainingMinutes}min`;
+            }
+          }
+          
+          return <NTag size="small" type="info">{duration}</NTag>;
+        } catch (e) {
+          return <NTag size="small" type="default">-</NTag>;
+        }
+      }
     }
   ]
 });
 </script>
 
 <template>
-  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
+  <div class="audit-logs-wrapper">
+    <!-- Statistics Cards -->
+    <AuditStats />
+    
     <AuditBaseLogsSearch v-model:model="searchParams" @reset="resetSearchParams" @search="getDataByPage" />
 
-    <NCard :title="$t('route.audit')" :bordered="false" size="small" class="sm:flex-1-hidden card-wrapper">
+    <NCard :title="$t('route.audit')" :bordered="false" size="small" class="card-wrapper" style="margin-top: 16px;">
       <template #header-extra>
         <TableHeader v-model:columns="columnChecks" :loading="loading" @refresh="getData" />
       </template>
@@ -118,16 +169,22 @@ const {
         :columns="columns"
         :data="data"
         size="small"
-        :flex-height="!appStore.isMobile"
+        :flex-height="false"
         :scroll-x="962"
         :loading="loading"
         remote
         :row-key="row => row.id"
         :pagination="mobilePagination"
-        class="sm:h-full"
       />
     </NCard>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.audit-logs-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 20px;
+}
+</style>

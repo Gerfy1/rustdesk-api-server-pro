@@ -17,6 +17,7 @@ type AuditController struct {
 func (c *AuditController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET", "/audit/list", "HandleList")
 	b.Handle("GET", "/audit/file-transfer-list", "HandleFileTransferList")
+	b.Handle("GET", "/audit/stats", "HandleStats")
 }
 
 func (c *AuditController) HandleList() mvc.Result {
@@ -72,8 +73,20 @@ func (c *AuditController) HandleList() mvc.Result {
 
 	list := make([]iris.Map, 0)
 	for _, a := range auditList {
+		// Get username from user_id
+		var user model.User
+		username := "-"
+		if a.UserId > 0 {
+			has, err := c.Db.ID(a.UserId).Get(&user)
+			if err == nil && has {
+				username = user.Username
+			}
+		}
+		
 		list = append(list, iris.Map{
 			"id":          a.Id,
+			"user_id":     a.UserId,
+			"username":    username,
 			"conn_id":     a.ConnId,
 			"rustdesk_id": a.RustdeskId,
 			"ip":          a.IP,
@@ -81,6 +94,7 @@ func (c *AuditController) HandleList() mvc.Result {
 			"uuid":        a.Uuid,
 			"type":        a.Type,
 			"created_at":  a.CreatedAt.Format(config.TimeFormat),
+			"closed_at":   a.ClosedAt.Format(config.TimeFormat),
 		})
 	}
 	return c.Success(iris.Map{
@@ -146,5 +160,117 @@ func (c *AuditController) HandleFileTransferList() mvc.Result {
 		"records": list,
 		"current": currentPage,
 		"size":    pageSize,
+	}, "ok")
+}
+
+// HandleStats returns audit statistics
+func (c *AuditController) HandleStats() mvc.Result {
+	// Top 10 most accessed devices
+	type DeviceStats struct {
+		RustdeskId string `xorm:"rustdesk_id"`
+		Count      int    `xorm:"count"`
+	}
+	topDevices := make([]DeviceStats, 0)
+	err := c.Db.SQL(`
+		SELECT rustdesk_id, COUNT(*) as count 
+		FROM audit 
+		WHERE rustdesk_id != '' 
+		GROUP BY rustdesk_id 
+		ORDER BY count DESC 
+		LIMIT 10
+	`).Find(&topDevices)
+	if err != nil {
+		c.Ctx.Application().Logger().Errorf("Error getting top devices: %v", err)
+	}
+
+	// Format top devices for frontend
+	topDevicesList := make([]iris.Map, 0)
+	for _, d := range topDevices {
+		topDevicesList = append(topDevicesList, iris.Map{
+			"rustdesk_id": d.RustdeskId,
+			"count":       d.Count,
+		})
+	}
+
+	// Average session duration (in seconds)
+	type AvgDuration struct {
+		AvgSeconds float64 `xorm:"avg_seconds"`
+	}
+	var avgDuration AvgDuration
+	_, err = c.Db.SQL(`
+		SELECT AVG(CAST((julianday(closed_at) - julianday(created_at)) * 86400 AS INTEGER)) as avg_seconds
+		FROM audit 
+		WHERE closed_at IS NOT NULL AND closed_at > created_at
+	`).Get(&avgDuration)
+	if err != nil {
+		c.Ctx.Application().Logger().Errorf("Error getting avg duration: %v", err)
+		avgDuration.AvgSeconds = 0
+	}
+
+	// Connections per day (last 7 days)
+	type DailyStats struct {
+		Date  string `xorm:"date"`
+		Count int    `xorm:"count"`
+	}
+	dailyStats := make([]DailyStats, 0)
+	err = c.Db.SQL(`
+		SELECT DATE(created_at) as date, COUNT(*) as count
+		FROM audit
+		WHERE created_at >= DATE('now', '-7 days')
+		GROUP BY DATE(created_at)
+		ORDER BY date ASC
+	`).Find(&dailyStats)
+	if err != nil {
+		c.Ctx.Application().Logger().Errorf("Error getting daily stats: %v", err)
+	}
+
+	// Format daily stats for chart
+	dailyStatsList := make([]iris.Map, 0)
+	for _, d := range dailyStats {
+		dailyStatsList = append(dailyStatsList, iris.Map{
+			"date":  d.Date,
+			"count": d.Count,
+		})
+	}
+
+	// Total connections
+	totalConnections, _ := c.Db.Count(&model.Audit{})
+
+	// Top 10 most active users
+	type UserStats struct {
+		UserId   int    `xorm:"user_id"`
+		Count    int    `xorm:"count"`
+		Username string `xorm:"username"`
+	}
+	topUsers := make([]UserStats, 0)
+	err = c.Db.SQL(`
+		SELECT a.user_id, COUNT(*) as count, u.username
+		FROM audit a
+		LEFT JOIN user u ON a.user_id = u.id
+		WHERE a.user_id > 0
+		GROUP BY a.user_id, u.username
+		ORDER BY count DESC
+		LIMIT 10
+	`).Find(&topUsers)
+	if err != nil {
+		c.Ctx.Application().Logger().Errorf("Error getting top users: %v", err)
+	}
+
+	// Format top users for frontend
+	topUsersList := make([]iris.Map, 0)
+	for _, u := range topUsers {
+		topUsersList = append(topUsersList, iris.Map{
+			"user_id":  u.UserId,
+			"username": u.Username,
+			"count":    u.Count,
+		})
+	}
+
+	return c.Success(iris.Map{
+		"top_devices":       topDevicesList,
+		"top_users":         topUsersList,
+		"avg_duration":      int(avgDuration.AvgSeconds),
+		"daily_stats":       dailyStatsList,
+		"total_connections": totalConnections,
 	}, "ok")
 }

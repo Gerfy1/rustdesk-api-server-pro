@@ -55,7 +55,12 @@ func (c *AuditController) PostAuditConn() mvc.Result {
 		action := actionResult.String()
 		if action == "new" {
 			ip := gjson.GetBytes(body, "ip").String()
+			
+			// Get authenticated user who is making the connection
+			user := c.GetUser()
+			
 			c.Db.Insert(&model.Audit{
+				UserId:     user.Id,
 				ConnId:     connId,
 				RustdeskId: rustdeskId,
 				IP:         ip,
