@@ -76,36 +76,20 @@ async function fetchAvailableTags() {
   try {
     const { request } = await import('@/service/request');
     
+    // Get tags directly from the address book
     const response = await request({
-      url: `/address-books/${props.addressBookId}`,
+      url: `/address-books/${props.addressBookId}/tags`,
       method: 'get'
     });
 
-    const data = response.data as any;
-    // Get tags from address book (will implement endpoint to list tags)
-    // For now, load from existing peers
-    const peersResponse = await request({
-      url: `/address-books/${props.addressBookId}/peers`,
-      method: 'get'
-    });
+    // Response.data should be array of tag names
+    if (response.data && Array.isArray(response.data)) {
+      availableTags.value = response.data;
+    } else {
+      availableTags.value = [];
+    }
     
-    const peers = peersResponse.data?.records || [];
-    const tagsSet = new Set<string>();
-    
-    peers.forEach((peer: any) => {
-      if (peer.tags) {
-        try {
-          const peerTags = typeof peer.tags === 'string' ? JSON.parse(peer.tags) : peer.tags;
-          if (Array.isArray(peerTags)) {
-            peerTags.forEach((tag: string) => tagsSet.add(tag));
-          }
-        } catch (e) {
-          // Ignore parse errors
-        }
-      }
-    });
-    
-    availableTags.value = Array.from(tagsSet);
+    console.log('Tags disponíveis:', availableTags.value);
   } catch (error) {
     console.error('Erro ao buscar tags disponíveis:', error);
     availableTags.value = [];
@@ -284,7 +268,7 @@ function handleClose() {
             :input-props="{ autocomplete: 'off' }"
           />
           <template v-if="availableTags.length > 0">
-            <NText depth="3" style="font-size: 12px; margin-top: 4px; display: block;">
+            <NText depth="3" style="font-size: 12px; margin-top: 4px;margin-left: 4px; display: block;">
               Tags disponíveis: {{ availableTags.join(', ') }}
             </NText>
           </template>

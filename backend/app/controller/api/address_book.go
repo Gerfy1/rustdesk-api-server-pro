@@ -529,7 +529,7 @@ func (c *AddressBookController) PostAbTags() mvc.Result {
 		tagMap[tag.Name] = tag.Color
 	}
 
-	// Convert to array of maps (proper JSON structure)
+	// Convert to array of structs (proper JSON structure for RustDesk 1.4.x)
 	type TagResponse struct {
 		Name  string `json:"name"`
 		Color int64  `json:"color"`
@@ -542,6 +542,9 @@ func (c *AddressBookController) PostAbTags() mvc.Result {
 			Color: color,
 		})
 	}
+
+	// Log for debugging
+	c.Ctx.Application().Logger().Infof("PostAbTags: Found %d tags for user %d", len(tags), user.Id)
 
 	return mvc.Response{
 		Object: iris.Map{

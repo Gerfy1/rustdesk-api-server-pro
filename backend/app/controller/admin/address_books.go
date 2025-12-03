@@ -22,6 +22,7 @@ func (c *AddressBooksController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("PUT", "/address-books/{id:int}", "HandleUpdate")
 	b.Handle("DELETE", "/address-books/{id:int}", "HandleDelete")
 	b.Handle("GET", "/address-books/{id:int}/peers", "HandleGetPeers")
+	b.Handle("GET", "/address-books/{id:int}/tags", "HandleGetTags")
 	b.Handle("POST", "/address-books/{id:int}/import-devices", "HandleImportDevices")
 	b.Handle("POST", "/address-books/{id:int}/peers", "HandleAddPeer")
 	b.Handle("DELETE", "/address-books/{id:int}/peers/{peerId:int}", "HandleDeletePeer")
@@ -169,9 +170,15 @@ func (c *AddressBooksController) HandleCreate() mvc.Result {
 				UserId: form.UserId,
 				AbId:   ab.Id,
 				Name:   tagName,
-				Color:  0xFF0000FF, // Default blue color
+				Color:  4278190335, // Default color (blue) for RustDesk 1.4.x
 			}
-			_, _ = c.Db.Insert(&tag)
+			inserted, err := c.Db.Insert(&tag)
+			if err != nil {
+				c.Ctx.Application().Logger().Errorf("Failed to insert tag %s: %v", tagName, err)
+			} else {
+				c.Ctx.Application().Logger().Infof("Created tag: %s (id=%d) for address book %d", tagName, tag.Id, ab.Id)
+				_ = inserted
+			}
 		}
 	}
 
@@ -293,6 +300,28 @@ func (c *AddressBooksController) HandleGetPeers() mvc.Result {
 		"total":   len(list),
 		"records": list,
 	}, "ok")
+}
+
+// HandleGetTags - Get all tags for an address book
+func (c *AddressBooksController) HandleGetTags() mvc.Result {
+	id := c.Ctx.Params().GetIntDefault("id", 0)
+
+	// Get tags for this address book
+	tagList := make([]model.AddressBookTag, 0)
+	err := c.Db.Where("ab_id = ?", id).Find(&tagList)
+	if err != nil {
+		return c.Error(nil, err.Error())
+	}
+
+	// Format tags as simple array of strings
+	tags := make([]string, 0)
+	for _, tag := range tagList {
+		tags = append(tags, tag.Name)
+	}
+
+	c.Ctx.Application().Logger().Infof("HandleGetTags: Found %d tags for address book %d", len(tags), id)
+
+	return c.Success(tags, "ok")
 }
 
 // HandleImportDevices - Import devices as peers into an address book
