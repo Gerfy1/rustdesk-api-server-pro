@@ -99,12 +99,16 @@ async function fetchAvailableTags() {
 
 // Auto-fill device info when RustDesk ID is entered
 async function handleRustdeskIdBlur() {
-  if (!formModel.value.rustdesk_id || formModel.value.rustdesk_id.trim() === '') {
+  const trimmedId = formModel.value.rustdesk_id?.trim();
+  if (!trimmedId) {
     return;
   }
 
-  // Only search if hostname is empty (don't override manual input)
-  if (formModel.value.hostname !== '') {
+  // Update the field with trimmed value
+  formModel.value.rustdesk_id = trimmedId;
+
+  // Only search if other fields are empty (don't override manual input)
+  if (formModel.value.hostname !== '' || formModel.value.alias !== '') {
     return;
   }
 
@@ -117,7 +121,7 @@ async function handleRustdeskIdBlur() {
       url: '/devices/list',
       method: 'get',
       params: {
-        rustdesk_id: formModel.value.rustdesk_id.trim(),
+        rustdesk_id: trimmedId,
         current: 1,
         size: 1
       }
@@ -134,8 +138,9 @@ async function handleRustdeskIdBlur() {
       if (!formModel.value.username) {
         formModel.value.username = device.username || '';
       }
+      // Alias = nome amigável, usar hostname como padrão
       if (!formModel.value.alias) {
-        formModel.value.alias = device.hostname || '';
+        formModel.value.alias = device.hostname || device.rustdesk_id || '';
       }
       if (!formModel.value.platform || formModel.value.platform === 'Windows') {
         formModel.value.platform = device.os || 'Windows';

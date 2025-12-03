@@ -75,7 +75,7 @@ const columns = [
       try {
         const tags = typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags;
         return (
-          <NSpace size="small">
+          <NSpace size="small" justify="center" style="width: 100%">
             {tags.map((tag: string, index: number) => (
               <NTag key={index} type="info" size="small">{tag}</NTag>
             ))}
