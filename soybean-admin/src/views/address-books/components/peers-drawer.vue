@@ -57,23 +57,47 @@ const columns = [
     key: 'rustdesk_id',
     title: 'RustDesk ID',
     align: 'center' as const,
-    width: 120
+    width: 140,
+    render: (row: Api.AddressBooks.Peer) => {
+      // Show alias if available, otherwise show rustdesk_id
+      return <span style="font-weight: 500">{row.alias || row.rustdesk_id}</span>;
+    }
+  },
+  {
+    key: 'tags',
+    title: 'Tags',
+    align: 'center' as const,
+    width: 180,
+    render: (row: Api.AddressBooks.Peer) => {
+      if (!row.tags || row.tags.length === 0) {
+        return <span style="color: #999; font-size: 12px">Sem tags</span>;
+      }
+      try {
+        const tags = typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags;
+        return (
+          <NSpace size="small">
+            {tags.map((tag: string, index: number) => (
+              <NTag key={index} type="info" size="small">{tag}</NTag>
+            ))}
+          </NSpace>
+        );
+      } catch (e) {
+        return <span style="color: #999; font-size: 12px">-</span>;
+      }
+    }
   },
   {
     key: 'hostname',
     title: 'Hostname',
     align: 'center' as const,
-    width: 150
+    width: 150,
+    render: (row: Api.AddressBooks.Peer) => {
+      return <span style="font-size: 13px; color: #666">{row.hostname || '-'}</span>;
+    }
   },
   {
     key: 'username',
     title: 'Username',
-    align: 'center' as const,
-    width: 120
-  },
-  {
-    key: 'alias',
-    title: 'Alias',
     align: 'center' as const,
     width: 120
   },
