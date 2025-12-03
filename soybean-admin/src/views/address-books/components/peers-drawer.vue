@@ -59,8 +59,17 @@ const columns = [
     align: 'center' as const,
     width: 140,
     render: (row: Api.AddressBooks.Peer) => {
-      // Show alias if available, otherwise show rustdesk_id
-      return <span style="font-weight: 500">{row.alias || row.rustdesk_id}</span>;
+      // Show rustdesk_id (the actual unique identifier)
+      return <span style="font-weight: 500; font-family: monospace">{row.rustdesk_id}</span>;
+    }
+  },
+  {
+    key: 'alias',
+    title: 'Alias / Nome',
+    align: 'center' as const,
+    width: 140,
+    render: (row: Api.AddressBooks.Peer) => {
+      return <span style="color: #666">{row.alias || '-'}</span>;
     }
   },
   {
