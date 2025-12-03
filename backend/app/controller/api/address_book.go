@@ -491,9 +491,9 @@ func (c *AddressBookController) GetAbGet() mvc.Result {
 func (c *AddressBookController) PostAbTags() mvc.Result {
 	user := c.GetUser()
 	
-	// Get Personal AddressBook
-	var personalAb model.AddressBook
-	hasPersonalAb, err := c.Db.Where("user_id = ? AND name = ?", user.Id, model.PersonalAddressBookName).Get(&personalAb)
+	// Get all address books for this user
+	abList := make([]model.AddressBook, 0)
+	err := c.Db.Where("user_id = ?", user.Id).Find(&abList)
 	if err != nil {
 		return mvc.Response{
 			Object: iris.Map{
@@ -502,11 +502,17 @@ func (c *AddressBookController) PostAbTags() mvc.Result {
 		}
 	}
 
-	// Get tags for this address book
+	// Collect all ab_ids
+	abIds := make([]int, 0)
+	for _, ab := range abList {
+		abIds = append(abIds, ab.Id)
+	}
+
+	// Get all tags for all address books of this user
 	tagList := make([]model.AddressBookTag, 0)
 	
-	if hasPersonalAb {
-		err = c.Db.Where("ab_id = ?", personalAb.Id).Find(&tagList)
+	if len(abIds) > 0 {
+		err = c.Db.In("ab_id", abIds).Find(&tagList)
 		if err != nil {
 			return mvc.Response{
 				Object: iris.Map{
@@ -517,11 +523,18 @@ func (c *AddressBookController) PostAbTags() mvc.Result {
 	}
 
 	// Format tags as array of objects with name and color
-	tags := make([]iris.Map, 0)
+	// Use map to avoid duplicates
+	tagMap := make(map[string]int64)
 	for _, tag := range tagList {
+		tagMap[tag.Name] = tag.Color
+	}
+
+	// Convert to array
+	tags := make([]iris.Map, 0)
+	for name, color := range tagMap {
 		tags = append(tags, iris.Map{
-			"name":  tag.Name,
-			"color": tag.Color,
+			"name":  name,
+			"color": color,
 		})
 	}
 

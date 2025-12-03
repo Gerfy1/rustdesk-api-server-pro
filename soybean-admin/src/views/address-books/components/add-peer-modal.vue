@@ -42,10 +42,18 @@ const platformOptions = [
   { label: 'Android', value: 'Android' }
 ];
 
+const tagOptions = computed(() => {
+  return availableTags.value.map(tag => ({
+    label: tag,
+    value: tag
+  }));
+});
+
 const loading = ref(false);
 const searching = ref(false);
+const availableTags = ref<string[]>([]);
 
-watch(visible, (val) => {
+watch(visible, async (val) => {
   if (val) {
     // Reset form when opening
     formModel.value = {
@@ -57,8 +65,53 @@ watch(visible, (val) => {
       platform: 'Windows',
       tags: []
     };
+    
+    // Fetch available tags for this address book
+    await fetchAvailableTags();
   }
 });
+
+// Fetch available tags for suggestions
+async function fetchAvailableTags() {
+  try {
+    const { request } = await import('@/service/request');
+    
+    const response = await request({
+      url: `/address-books/${props.addressBookId}`,
+      method: 'get'
+    });
+
+    const data = response.data as any;
+    // Get tags from address book (will implement endpoint to list tags)
+    // For now, load from existing peers
+    const peersResponse = await request({
+      url: `/address-books/${props.addressBookId}/peers`,
+      method: 'get'
+    });
+    
+    const peers = peersResponse.data?.records || [];
+    const tagsSet = new Set<string>();
+    
+    peers.forEach((peer: any) => {
+      if (peer.tags) {
+        try {
+          const peerTags = typeof peer.tags === 'string' ? JSON.parse(peer.tags) : peer.tags;
+          if (Array.isArray(peerTags)) {
+            peerTags.forEach((tag: string) => tagsSet.add(tag));
+          }
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+    });
+    
+    availableTags.value = Array.from(tagsSet);
+  } catch (error) {
+    console.error('Erro ao buscar tags disponíveis:', error);
+    availableTags.value = [];
+  }
+}
+
 
 // Auto-fill device info when RustDesk ID is entered
 async function handleRustdeskIdBlur() {
@@ -221,7 +274,20 @@ function handleClose() {
         </NFormItemGi>
         
         <NFormItemGi :span="24" label="Tags" path="tags">
-          <NDynamicTags v-model:value="formModel.tags" />
+          <NSelect 
+            v-model:value="formModel.tags" 
+            :options="tagOptions"
+            multiple
+            filterable
+            tag
+            placeholder="Selecione ou crie novas tags"
+            :input-props="{ autocomplete: 'off' }"
+          />
+          <template v-if="availableTags.length > 0">
+            <NText depth="3" style="font-size: 12px; margin-top: 4px; display: block;">
+              Tags disponíveis: {{ availableTags.join(', ') }}
+            </NText>
+          </template>
         </NFormItemGi>
         
         <NFormItemGi :span="24">
