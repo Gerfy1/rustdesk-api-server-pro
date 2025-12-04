@@ -236,8 +236,12 @@ func (c *UsersController) HandleDelete() mvc.Result {
 		return c.Error(nil, err.Error())
 	}
 	
-	// Get current admin info
-	adminInfo := c.Ctx.Values().Get("adminInfo").(model.User)
+	// Get current admin info using correct key
+	adminUser := c.Ctx.Values().Get(config.AdminUserKey)
+	if adminUser == nil {
+		return c.Error(nil, "Admin user not found in context")
+	}
+	adminInfo := adminUser.(*model.User)
 	
 	// Remove ID 1 (super admin protection)
 	ids := util.RemoveElement(params.Ids, 1)
