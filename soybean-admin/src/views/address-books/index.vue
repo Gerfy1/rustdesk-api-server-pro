@@ -114,7 +114,17 @@ const {
       key: 'created_at',
       title: 'Criado em',
       align: 'center',
-      width: 160
+      width: 100,
+      render: (row: any) => {
+        if (!row.created_at) return '-';
+        const [date, time] = row.created_at.split(' ');
+        return (
+          <div style="line-height: 1.4">
+            <div style="font-size: 12px">{date}</div>
+            <div style="font-size: 11px; color: #999">{time}</div>
+          </div>
+        );
+      }
     },
     {
       key: 'actions',

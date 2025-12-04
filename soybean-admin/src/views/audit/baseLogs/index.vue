@@ -48,7 +48,8 @@ const {
     {
       key: 'id',
       title: 'ID',
-      align: 'center'
+      align: 'center',
+      width: 60
     },
     {
       key: 'type',
@@ -170,7 +171,7 @@ const {
         :data="data"
         size="small"
         :flex-height="false"
-        :scroll-x="962"
+        :scroll-x="1020"
         :loading="loading"
         remote
         :row-key="row => row.id"
