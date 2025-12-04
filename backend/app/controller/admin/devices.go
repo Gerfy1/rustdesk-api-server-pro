@@ -57,20 +57,38 @@ func (c *DevicesController) HandleList() mvc.Result {
 
 	list := make([]iris.Map, 0)
 	for _, a := range deviceList {
+		// Get last real connection from audit table
+		var lastAudit model.Audit
+		hasAudit, _ := c.Db.Where("rustdesk_id = ?", a.RustdeskId).
+			Desc("created_at").
+			Limit(1).
+			Get(&lastAudit)
+		
+		lastConnectionAt := ""
+		totalAccesses := int64(0)
+		if hasAudit {
+			lastConnectionAt = lastAudit.CreatedAt.Format(config.TimeFormat)
+		}
+		
+		// Get total number of connections from audit
+		totalAccesses, _ = c.Db.Where("rustdesk_id = ?", a.RustdeskId).Count(&model.Audit{})
+		
 		list = append(list, iris.Map{
-			"id":           a.Id,
-			"rustdesk_id":  a.RustdeskId,
-			"hostname":     a.Hostname,
-			"username":     a.Username,
-			"uuid":         a.Uuid,
-			"version":      a.Version,
-			"os":           a.Os,
-			"memory":       a.Memory,
-			"is_online":    a.IsOnline,
-			"last_seen_at": a.LastSeenAt.Format(config.TimeFormat),
-			"ip_address":   a.IpAddress,
-			"conns":        a.Conns,
-			"created_at":   a.CreatedAt.Format(config.TimeFormat),
+			"id":                 a.Id,
+			"rustdesk_id":        a.RustdeskId,
+			"hostname":           a.Hostname,
+			"username":           a.Username,
+			"uuid":               a.Uuid,
+			"version":            a.Version,
+			"os":                 a.Os,
+			"memory":             a.Memory,
+			"is_online":          a.IsOnline,
+			"last_seen_at":       a.LastSeenAt.Format(config.TimeFormat),
+			"last_connection_at": lastConnectionAt,
+			"total_accesses":     totalAccesses,
+			"ip_address":         a.IpAddress,
+			"conns":              a.Conns,
+			"created_at":         a.CreatedAt.Format(config.TimeFormat),
 		})
 	}
 	return c.Success(iris.Map{

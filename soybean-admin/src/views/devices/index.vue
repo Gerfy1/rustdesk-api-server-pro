@@ -38,6 +38,44 @@ const formatRelativeTime = (dateString: string) => {
   return `há ${diffDay}d`;
 };
 
+// Format memory: convert MB to GB if needed, or keep original format
+const formatMemory = (memory: string) => {
+  if (!memory) return '-';
+  
+  // If it's already in GB format (e.g., "5.83 GB"), extract and fix
+  const gbMatch = memory.match(/(\d+\.?\d*)\s*GB/i);
+  if (gbMatch) {
+    const gb = parseFloat(gbMatch[1]);
+    // Round to whole number if close to it
+    const rounded = Math.round(gb);
+    if (Math.abs(gb - rounded) < 0.1) {
+      return `${rounded} GB`;
+    }
+    return `${gb.toFixed(1)} GB`;
+  }
+  
+  // If it's in MB format (e.g., "6144 MB")
+  const mbMatch = memory.match(/(\d+)\s*MB/i);
+  if (mbMatch) {
+    const mb = parseInt(mbMatch[1]);
+    const gb = mb / 1024;
+    // If it's a round number of GB, show as integer
+    if (gb >= 1 && gb % 1 === 0) {
+      return `${gb} GB`;
+    }
+    // If close to a round number, round it
+    const rounded = Math.round(gb);
+    if (Math.abs(gb - rounded) < 0.1) {
+      return `${rounded} GB`;
+    }
+    // Otherwise show 1 decimal place
+    return `${gb.toFixed(1)} GB`;
+  }
+  
+  // Return as-is if format not recognized
+  return memory;
+};
+
 const {
   columns,
   columnChecks,
@@ -105,24 +143,49 @@ const {
     },
     {
       key: 'conns',
-      title: 'Conexões',
+      title: 'Conexões Ativas',
       align: 'center',
-      width: 90,
+      width: 110,
       render: (row: any) => {
         if (row.conns > 0) {
           return <NBadge value={row.conns} type="success" />;
         }
-        return <span>0</span>;
+        return <span style="color: #999">0</span>;
       }
     },
     {
-      key: 'last_seen_at',
+      key: 'total_accesses',
+      title: 'Total Acessos',
+      align: 'center',
+      width: 110,
+      render: (row: any) => {
+        if (row.total_accesses > 0) {
+          return <NBadge value={row.total_accesses} color="#3b82f6" />;
+        }
+        return <span style="color: #999">0</span>;
+      }
+    },
+    {
+      key: 'last_connection_at',
       title: 'Última Conexão',
       align: 'center',
       width: 140,
       render: (row: any) => {
+        if (!row.last_connection_at) {
+          return <span style="color: #999">Nunca</span>;
+        }
+        const relativeTime = formatRelativeTime(row.last_connection_at);
+        return <span title={row.last_connection_at}>{relativeTime}</span>;
+      }
+    },
+    {
+      key: 'last_seen_at',
+      title: 'Último Heartbeat',
+      align: 'center',
+      width: 140,
+      render: (row: any) => {
         const relativeTime = formatRelativeTime(row.last_seen_at);
-        return <span title={row.last_seen_at}>{relativeTime}</span>;
+        return <span title={row.last_seen_at} style="color: #999; font-size: 12px">{relativeTime}</span>;
       }
     },
     {
@@ -139,9 +202,10 @@ const {
     },
     {
       key: 'memory',
-      title: $t('dataMap.device.memory'),
+      title: 'RAM Total',
       align: 'center',
-      width: 100
+      width: 100,
+      render: (row: any) => formatMemory(row.memory)
     },
     {
       key: 'created_at',
@@ -185,7 +249,7 @@ onUnmounted(() => {
         :data="data"
         size="small"
         :flex-height="!appStore.isMobile"
-        :scroll-x="1400"
+        :scroll-x="1600"
         :loading="loading"
         remote
         :row-key="(row: any) => row.id"
