@@ -56,11 +56,22 @@ func (c *AuditController) PostAuditConn() mvc.Result {
 		if action == "new" {
 			ip := gjson.GetBytes(body, "ip").String()
 			
-			// Get authenticated user who is making the connection
+			// Try to get authenticated user (may be nil if no auth token)
+			var userId int = 0
 			user := c.GetUser()
+			if user != nil {
+				userId = user.Id
+			} else {
+				// If no auth token, try to find user by rustdesk_id from peer table
+				var peer model.Peer
+				has, _ := c.Db.Where("rustdesk_id = ?", rustdeskId).Get(&peer)
+				if has && peer.UserId > 0 {
+					userId = peer.UserId
+				}
+			}
 			
 			c.Db.Insert(&model.Audit{
-				UserId:     user.Id,
+				UserId:     userId,
 				ConnId:     connId,
 				RustdeskId: rustdeskId,
 				IP:         ip,
