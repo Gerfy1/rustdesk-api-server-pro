@@ -265,7 +265,7 @@ function handleClose() {
           :data="peers"
           :loading="loading"
           size="small"
-          :scroll-x="1200"
+          :scroll-x="1400"
           :max-height="600"
         />
       </div>
