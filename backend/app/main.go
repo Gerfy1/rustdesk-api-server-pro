@@ -8,6 +8,7 @@ import (
 	"rustdesk-api-server-pro/db"
 
 	"github.com/kataras/iris/v12"
+	"xorm.io/xorm"
 )
 
 func newApp(cfg *config.ServerConfig) (*iris.Application, error) {
@@ -79,7 +80,7 @@ func newApp(cfg *config.ServerConfig) (*iris.Application, error) {
 }
 
 // fixUserRoles - Auto-migrate existing users to role-based system
-func fixUserRoles(dbEngine *db.Engine, app *iris.Application) {
+func fixUserRoles(dbEngine *xorm.Engine, app *iris.Application) {
 	var users []model.User
 	err := dbEngine.Where("role = 0 OR role IS NULL").Find(&users)
 	if err != nil {
