@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Simplebar from 'simplebar-vue';
+// @ts-ignore - CSS import
 import 'simplebar-vue/dist/simplebar.min.css';
 
 defineOptions({

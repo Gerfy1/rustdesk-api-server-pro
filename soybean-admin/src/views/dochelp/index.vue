@@ -6,19 +6,19 @@
           <template #icon>
             <icon-mdi-alert-circle-outline />
           </template>
-          {{ $t('page.dochelp.reportProblem') }}
+          {{ t('page.dochelp.reportProblem') }}
         </NButton>
       </template>
 
       <NTabs v-model:value="activeTab" type="line" animated>
         <!-- Knowledge Base Tab -->
-        <NTabPane name="kb" :tab="$t('route.dochelp_kb')">
+        <NTabPane name="kb" :tab="t('route.dochelp_kb')">
           <div class="flex-col gap-16px">
             <!-- Search and Filters -->
             <NSpace>
               <NInput
                 v-model:value="kbSearchQuery"
-                :placeholder="$t('page.dochelp.searchPlaceholder')"
+                :placeholder="t('page.dochelp.searchPlaceholder')"
                 clearable
                 @input="handleKBSearch"
               >
@@ -30,14 +30,14 @@
               <NSelect
                 v-model:value="selectedCategory"
                 :options="categoryOptions"
-                :placeholder="$t('page.dochelp.selectCategory')"
+                :placeholder="t('page.dochelp.selectCategory')"
                 clearable
                 style="width: 200px"
                 @update:value="handleKBSearch"
               />
 
               <NCheckbox v-model:checked="showPinnedOnly" @update:checked="handleKBSearch">
-                {{ $t('page.dochelp.pinnedOnly') }}
+                {{ t('page.dochelp.pinnedOnly') }}
               </NCheckbox>
             </NSpace>
 
@@ -106,13 +106,13 @@
         </NTabPane>
 
         <!-- My Tickets Tab -->
-        <NTabPane name="mytickets" :tab="$t('route.dochelp_tickets')">
+        <NTabPane name="mytickets" :tab="t('route.dochelp_tickets')">
           <div class="flex-col gap-16px">
             <NSpace>
               <NSelect
                 v-model:value="myTicketStatusFilter"
                 :options="statusOptions"
-                :placeholder="$t('page.dochelp.filterByStatus')"
+                :placeholder="t('page.dochelp.filterByStatus')"
                 clearable
                 style="width: 200px"
                 @update:value="handleMyTicketsSearch"
@@ -121,7 +121,7 @@
               <NSelect
                 v-model:value="myTicketPriorityFilter"
                 :options="priorityOptions"
-                :placeholder="$t('page.dochelp.filterByPriority')"
+                :placeholder="t('page.dochelp.filterByPriority')"
                 clearable
                 style="width: 200px"
                 @update:value="handleMyTicketsSearch"
@@ -140,13 +140,13 @@
         </NTabPane>
 
         <!-- All Tickets Tab (Support Staff Only) -->
-        <NTabPane v-if="canManageTickets" name="alltickets" :tab="$t('route.dochelp_alltickets')">
+        <NTabPane v-if="canManageTickets" name="alltickets" :tab="t('route.dochelp_alltickets')">
           <div class="flex-col gap-16px">
             <NSpace>
               <NSelect
                 v-model:value="allTicketStatusFilter"
                 :options="statusOptions"
-                :placeholder="$t('page.dochelp.filterByStatus')"
+                :placeholder="t('page.dochelp.filterByStatus')"
                 clearable
                 style="width: 200px"
                 @update:value="handleAllTicketsSearch"
@@ -155,7 +155,7 @@
               <NSelect
                 v-model:value="allTicketPriorityFilter"
                 :options="priorityOptions"
-                :placeholder="$t('page.dochelp.filterByPriority')"
+                :placeholder="t('page.dochelp.filterByPriority')"
                 clearable
                 style="width: 200px"
                 @update:value="handleAllTicketsSearch"
@@ -178,24 +178,24 @@
     <!-- Create Ticket Modal -->
     <NModal v-model:show="showCreateTicketModal" preset="card" title="Report a Problem" style="width: 700px">
       <NForm ref="ticketFormRef" :model="ticketForm" :rules="ticketFormRules" label-placement="left" label-width="120">
-        <NFormItem :label="$t('page.dochelp.ticketTitle')" path="title">
-          <NInput v-model:value="ticketForm.title" :placeholder="$t('page.dochelp.ticketTitlePlaceholder')" />
+        <NFormItem :label="t('page.dochelp.ticketTitle')" path="title">
+          <NInput v-model:value="ticketForm.title" :placeholder="t('page.dochelp.ticketTitlePlaceholder')" />
         </NFormItem>
 
-        <NFormItem :label="$t('page.dochelp.description')" path="description">
+        <NFormItem :label="t('page.dochelp.description')" path="description">
           <NInput
             v-model:value="ticketForm.description"
             type="textarea"
-            :placeholder="$t('page.dochelp.descriptionPlaceholder')"
+            :placeholder="t('page.dochelp.descriptionPlaceholder')"
             :rows="6"
           />
         </NFormItem>
 
-        <NFormItem :label="$t('page.dochelp.priority')" path="priority">
+        <NFormItem :label="t('page.dochelp.priority')" path="priority">
           <NSelect v-model:value="ticketForm.priority" :options="priorityOptions" />
         </NFormItem>
 
-        <NFormItem :label="$t('page.dochelp.category')">
+        <NFormItem :label="t('page.dochelp.category')">
           <NSelect v-model:value="ticketForm.category_id" :options="categoryOptions" clearable />
         </NFormItem>
 
