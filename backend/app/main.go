@@ -47,6 +47,10 @@ func newApp(cfg *config.ServerConfig) (*iris.Application, error) {
 	}
 	app.Logger().Info("Database tables synced successfully!")
 
+	// Auto-fix user roles after sync (migration for existing users)
+	app.Logger().Info("Checking user roles...")
+	fixUserRoles(dbEngine, app)
+
 	app.RegisterDependency(dbEngine, cfg)
 
 	app.OnErrorCode(iris.StatusNotFound, func(context iris.Context) {
@@ -72,6 +76,45 @@ func newApp(cfg *config.ServerConfig) (*iris.Application, error) {
 	app.HandleDir("/", iris.Dir(cfg.HttpConfig.StaticDir))
 
 	return app, nil
+}
+
+// fixUserRoles - Auto-migrate existing users to role-based system
+func fixUserRoles(dbEngine *db.Engine, app *iris.Application) {
+	var users []model.User
+	err := dbEngine.Where("role = 0 OR role IS NULL").Find(&users)
+	if err != nil {
+		app.Logger().Warn("Failed to check user roles:", err)
+		return
+	}
+
+	if len(users) == 0 {
+		app.Logger().Info("All users have valid roles ✓")
+		return
+	}
+
+	app.Logger().Infof("Found %d users without role, fixing...", len(users))
+	
+	for _, user := range users {
+		// If user has is_admin=true, set as Super Admin (4)
+		// Otherwise set as regular User (1)
+		newRole := model.ROLE_USER
+		if user.IsAdmin {
+			newRole = model.ROLE_SUPER_ADMIN
+		}
+
+		_, err := dbEngine.ID(user.Id).Cols("role").Update(&model.User{Role: newRole})
+		if err != nil {
+			app.Logger().Warnf("Failed to update role for user %s: %v", user.Username, err)
+		} else {
+			roleName := "USER"
+			if newRole == model.ROLE_SUPER_ADMIN {
+				roleName = "SUPER_ADMIN"
+			}
+			app.Logger().Infof("✓ User '%s' (ID: %d) → role: %s", user.Username, user.Id, roleName)
+		}
+	}
+
+	app.Logger().Info("User roles migration completed!")
 }
 
 func StartServer() (bool, error) {
