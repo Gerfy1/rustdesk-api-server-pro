@@ -95,15 +95,6 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
-    name: 'dochelp',
-    path: '/dochelp',
-    component: 'layout.base$view.dochelp',
-    meta: {
-      title: 'dochelp',
-      i18nKey: 'route.dochelp'
-    }
-  },
-  {
     name: 'home',
     path: '/home',
     component: 'layout.base$view.home',
