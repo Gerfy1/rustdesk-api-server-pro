@@ -28,10 +28,9 @@ func (c *AddressBookPeerController) PostAbPeers() mvc.Result {
 	pageSize := c.Ctx.URLParamIntDefault("pageSize", 10)
 	abGuid := c.Ctx.URLParamDefault("ab", "")
 
-	user := c.GetUser()
-
+	// Allow viewing any address book (not just user's own)
 	var ab model.AddressBook
-	_, err := c.Db.Where("user_id = ? and guid = ?", user.Id, abGuid).Get(&ab)
+	_, err := c.Db.Where("guid = ?", abGuid).Get(&ab)
 	if err != nil {
 		return mvc.Response{
 			Object: iris.Map{
@@ -40,7 +39,8 @@ func (c *AddressBookPeerController) PostAbPeers() mvc.Result {
 		}
 	}
 	query := func() *xorm.Session {
-		q := c.Db.Table(&model.Peer{}).Where("user_id = ? and ab_id = ?", user.Id, ab.Id)
+		// Show all peers from this address book (shared access)
+		q := c.Db.Table(&model.Peer{}).Where("ab_id = ?", ab.Id)
 		return q
 	}
 

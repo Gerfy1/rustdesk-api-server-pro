@@ -5,12 +5,14 @@ import { fetchAddressBooksList, deleteAddressBook } from '@/service/api/address-
 import { $t } from '@/locales';
 import { useAppStore } from '@/store/modules/app';
 import { useTable } from '@/hooks/common/table';
+import { usePermission } from '@/hooks/business/auth';
 import TableHeader from './components/table-header.vue';
 import SearchForm from './components/search.vue';
 import AddressBookModal from './components/address-book-modal.vue';
 import PeersDrawer from './components/peers-drawer.vue';
 
 const appStore = useAppStore();
+const { canManageAddressBooks } = usePermission();
 
 // Modal state
 const modalVisible = ref(false);
@@ -138,15 +140,19 @@ const {
             <NButton size="small" type="info" onClick={() => viewPeers(row)}>
               Ver Peers
             </NButton>
-            <NButton size="small" type="success" onClick={() => handleEdit(row)}>
-              Editar
-            </NButton>
-            <NPopconfirm onPositiveClick={() => handleDelete(row.id)}>
-              {{
-                default: () => 'Tem certeza que deseja deletar este Address Book?',
-                trigger: () => <NButton size="small" type="error">Deletar</NButton>
-              }}
-            </NPopconfirm>
+            {canManageAddressBooks.value && (
+              <>
+                <NButton size="small" type="success" onClick={() => handleEdit(row)}>
+                  Editar
+                </NButton>
+                <NPopconfirm onPositiveClick={() => handleDelete(row.id)}>
+                  {{
+                    default: () => 'Tem certeza que deseja deletar este Address Book?',
+                    trigger: () => <NButton size="small" type="error">Deletar</NButton>
+                  }}
+                </NPopconfirm>
+              </>
+            )}
           </NSpace>
         );
       }
@@ -195,7 +201,7 @@ function handleModalSuccess() {
     <NCard title="Address Books" :bordered="false" size="small" class="sm:flex-1-hidden card-wrapper">
       <template #header-extra>
         <NSpace>
-          <NButton type="primary" @click="handleAdd">
+          <NButton v-if="canManageAddressBooks" type="primary" @click="handleAdd">
             <template #icon>
               <icon-ic-round-plus class="text-icon" />
             </template>

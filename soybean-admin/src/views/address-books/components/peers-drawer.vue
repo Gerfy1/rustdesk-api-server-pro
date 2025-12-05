@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import { NTag, NBadge, NDataTable, NButton, NSpace, NPopconfirm } from 'naive-ui';
 import { fetchAddressBookPeers, importDevicesAsPeers } from '@/service/api/address-books';
+import { usePermission } from '@/hooks/business/auth';
 import AddPeerModal from './add-peer-modal.vue';
 
 defineOptions({
@@ -19,6 +20,7 @@ const visible = defineModel<boolean>('visible', { required: true });
 
 const loading = ref(false);
 const peers = ref<Api.AddressBooks.Peer[]>([]);
+const { canManageAddressBooks } = usePermission();
 
 // Add Peer Modal state
 const addPeerModalVisible = ref(false);
@@ -138,8 +140,11 @@ const columns = [
     align: 'center' as const,
     width: 100,
     render: (row: Api.AddressBooks.Peer) => {
+      if (!canManageAddressBooks.value) {
+        return <span style="color: #999; font-size: 12px">-</span>;
+      }
       return (
-        <NPopconfirm onPositiveClick={() => handleDeletePeer(row.id)}>
+        <NPopconfirm onPositiveClick={() => row.id && handleDeletePeer(row.id)}>
           {{
             default: () => 'Tem certeza que deseja deletar este peer?',
             trigger: () => (
@@ -236,7 +241,7 @@ function handleClose() {
             </NText>
             
             <!-- Botões de ação em destaque -->
-            <NSpace>
+            <NSpace v-if="canManageAddressBooks">
               <NButton type="success" size="medium" strong @click="handleAddPeer">
                 <template #icon>
                   <icon-mdi-account-plus class="text-icon" />

@@ -20,9 +20,9 @@ type AddressBookController struct {
 func (c *AddressBookController) GetAb() mvc.Result {
 	user := c.GetUser()
 	
-	// Check if user has a Personal AddressBook in the new system
-	var personalAb model.AddressBook
-	hasPersonalAb, err := c.Db.Where("user_id = ? AND name = ?", user.Id, model.PersonalAddressBookName).Get(&personalAb)
+	// Get ALL tags from ALL address books (shared access)
+	tagList := make([]model.AddressBookTag, 0)
+	err := c.Db.Find(&tagList)
 	if err != nil {
 		return mvc.Response{
 			Object: iris.Map{
@@ -30,110 +30,51 @@ func (c *AddressBookController) GetAb() mvc.Result {
 			},
 		}
 	}
-
-	// If Personal AddressBook exists, use it; otherwise fall back to old Tags system
-	var tags []string
-	var tagColors map[string]int64
-	var peers []iris.Map
-
-	if hasPersonalAb {
-		// Use new AddressBook system
-		tagList := make([]model.AddressBookTag, 0)
-		err = c.Db.Where("ab_id = ?", personalAb.Id).Find(&tagList)
-		if err != nil {
-			return mvc.Response{
-				Object: iris.Map{
-					"error": err.Error(),
-				},
-			}
-		}
-		
-		tags = make([]string, 0)
-		tagColors = make(map[string]int64)
-		for _, tag := range tagList {
+	
+	tags := make([]string, 0)
+	tagColors := make(map[string]int64)
+	seenTags := make(map[string]bool)
+	
+	for _, tag := range tagList {
+		if !seenTags[tag.Name] {
 			tags = append(tags, tag.Name)
 			tagColors[tag.Name] = tag.Color
-		}
-
-		// Get peers from AddressBook
-		peerList := make([]model.Peer, 0)
-		err = c.Db.Where("ab_id = ?", personalAb.Id).Find(&peerList)
-		if err != nil {
-			return mvc.Response{
-				Object: iris.Map{
-					"error": err.Error(),
-				},
-			}
-		}
-		
-		peers = make([]iris.Map, 0)
-		for _, peer := range peerList {
-			var peerTags []string
-			err := json.Unmarshal([]byte(peer.Tags), &peerTags)
-			if err != nil {
-				peerTags = []string{}
-			}
-			peers = append(peers, iris.Map{
-				"id":       peer.RustdeskId,
-				"hash":     peer.Hash,
-				"username": peer.Username,
-				"hostname": peer.Hostname,
-				"platform": peer.Platform,
-				"alias":    peer.Alias,
-				"tags":     peerTags,
-			})
-		}
-	} else {
-		// Fall back to old Tags/Peer system for backward compatibility
-		tagList := make([]model.Tags, 0)
-		err = c.Db.Where("user_id = ?", user.Id).Find(&tagList)
-		if err != nil {
-			return mvc.Response{
-				Object: iris.Map{
-					"error": err.Error(),
-				},
-			}
-		}
-		
-		tags = make([]string, 0)
-		tagColors = make(map[string]int64)
-		for _, tag := range tagList {
-			tags = append(tags, tag.Tag)
-			colorCode, err := strconv.ParseInt(tag.Color, 10, 64)
-			if err != nil {
-				continue
-			}
-			tagColors[tag.Tag] = colorCode
-		}
-
-		peerList := make([]model.Peer, 0)
-		err = c.Db.Where("user_id = ?", user.Id).Find(&peerList)
-		if err != nil {
-			return mvc.Response{
-				Object: iris.Map{
-					"error": err.Error(),
-				},
-			}
-		}
-		
-		peers = make([]iris.Map, 0)
-		for _, peer := range peerList {
-			var peerTags []string
-			err := json.Unmarshal([]byte(peer.Tags), &peerTags)
-			if err != nil {
-				peerTags = []string{}
-			}
-			peers = append(peers, iris.Map{
-				"id":       peer.RustdeskId,
-				"hash":     peer.Hash,
-				"username": peer.Username,
-				"hostname": peer.Hostname,
-				"platform": peer.Platform,
-				"alias":    peer.Alias,
-				"tags":     peerTags,
-			})
+			seenTags[tag.Name] = true
 		}
 	}
+
+	// Get ALL peers from ALL address books (shared access)
+	peerList := make([]model.Peer, 0)
+	err = c.Db.Find(&peerList)
+	if err != nil {
+		return mvc.Response{
+			Object: iris.Map{
+				"error": err.Error(),
+			},
+		}
+	}
+	
+	peers := make([]iris.Map, 0)
+	for _, peer := range peerList {
+		var peerTags []string
+		err := json.Unmarshal([]byte(peer.Tags), &peerTags)
+		if err != nil {
+			peerTags = []string{}
+		}
+		peers = append(peers, iris.Map{
+			"id":       peer.RustdeskId,
+			"hash":     peer.Hash,
+			"username": peer.Username,
+			"hostname": peer.Hostname,
+			"platform": peer.Platform,
+			"alias":    peer.Alias,
+			"tags":     peerTags,
+		})
+	}
+	
+	// Log for debugging
+	c.Ctx.Application().Logger().Infof("User %d (%s) accessing shared address books: %d tags, %d peers", 
+		user.Id, user.Username, len(tags), len(peers))
 
 	tagColorsJson, err := json.Marshal(tagColors)
 	if err != nil {
@@ -341,7 +282,8 @@ func (c *AddressBookController) PostAbSharedProfiles() mvc.Result {
 	pageSize := c.Ctx.URLParamIntDefault("pageSize", 10)
 
 	query := func() *xorm.Session {
-		q := c.Db.Table(&model.AddressBook{}).Where("shared = 1")
+		// Return ALL address books (shared access for all users)
+		q := c.Db.Table(&model.AddressBook{})
 		return q
 	}
 
@@ -376,7 +318,6 @@ func (c *AddressBookController) PostAbSharedProfiles() mvc.Result {
 
 // GetAbGet handles GET /api/ab/get?name=xxx - Returns peers for a specific address book
 func (c *AddressBookController) GetAbGet() mvc.Result {
-	user := c.GetUser()
 	abName := c.Ctx.URLParam("name")
 	
 	if abName == "" {
@@ -387,9 +328,9 @@ func (c *AddressBookController) GetAbGet() mvc.Result {
 		}
 	}
 
-	// Find the address book by name and user
+	// Find the address book by name (allow access to any address book)
 	var ab model.AddressBook
-	hasAb, err := c.Db.Where("user_id = ? AND name = ?", user.Id, abName).Get(&ab)
+	hasAb, err := c.Db.Where("name = ?", abName).Get(&ab)
 	if err != nil {
 		return mvc.Response{
 			Object: iris.Map{

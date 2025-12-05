@@ -118,6 +118,11 @@ func (c *AddressBooksController) HandleGet() mvc.Result {
 
 // HandleCreate - Create new address book
 func (c *AddressBooksController) HandleCreate() mvc.Result {
+	// Require SUPPORT_N2 or higher to create
+	if err := c.RequirePermission(model.ROLE_SUPPORT_N2, "create address book"); err != nil {
+		return err
+	}
+
 	var form struct {
 		UserId  int      `json:"user_id"`
 		Name    string   `json:"name"`
@@ -189,6 +194,11 @@ func (c *AddressBooksController) HandleCreate() mvc.Result {
 
 // HandleUpdate - Update address book
 func (c *AddressBooksController) HandleUpdate() mvc.Result {
+	// Require SUPPORT_N2 or higher to update
+	if err := c.RequirePermission(model.ROLE_SUPPORT_N2, "update address book"); err != nil {
+		return err
+	}
+
 	id, err := c.Ctx.Params().GetInt("id")
 	if err != nil {
 		return c.Error(nil, "Invalid ID")
@@ -228,6 +238,11 @@ func (c *AddressBooksController) HandleUpdate() mvc.Result {
 
 // HandleDelete - Delete address book
 func (c *AddressBooksController) HandleDelete() mvc.Result {
+	// Require SUPPORT_N2 or higher to delete
+	if err := c.RequirePermission(model.ROLE_SUPPORT_N2, "delete address book"); err != nil {
+		return err
+	}
+
 	id, err := c.Ctx.Params().GetInt("id")
 	if err != nil {
 		return c.Error(nil, "Invalid ID")
@@ -326,6 +341,11 @@ func (c *AddressBooksController) HandleGetTags() mvc.Result {
 
 // HandleImportDevices - Import devices as peers into an address book
 func (c *AddressBooksController) HandleImportDevices() mvc.Result {
+	// Require SUPPORT_N2 or higher to import devices
+	if err := c.RequirePermission(model.ROLE_SUPPORT_N2, "import devices"); err != nil {
+		return err
+	}
+
 	id := c.Ctx.Params().GetIntDefault("id", 0)
 
 	// Get address book
@@ -389,6 +409,11 @@ func (c *AddressBooksController) HandleImportDevices() mvc.Result {
 
 // HandleAddPeer - Add a peer manually to an address book
 func (c *AddressBooksController) HandleAddPeer() mvc.Result {
+	// Require SUPPORT_N2 or higher to add peers
+	if err := c.RequirePermission(model.ROLE_SUPPORT_N2, "add peer"); err != nil {
+		return err
+	}
+
 	abId, err := c.Ctx.Params().GetInt("id")
 	if err != nil {
 		return c.Error(500, "Invalid address book ID")
@@ -492,6 +517,11 @@ func (c *AddressBooksController) HandleAddPeer() mvc.Result {
 
 // HandleDeletePeer - Delete a peer from an address book
 func (c *AddressBooksController) HandleDeletePeer() mvc.Result {
+	// Require SUPPORT_N2 or higher to delete peers
+	if err := c.RequirePermission(model.ROLE_SUPPORT_N2, "delete peer"); err != nil {
+		return err
+	}
+
 	abId, err := c.Ctx.Params().GetInt("id")
 	if err != nil {
 		return c.Error(500, "Invalid address book ID")

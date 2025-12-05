@@ -18,5 +18,6 @@ func (c *IndexController) HandleUserInfo() mvc.Result {
 	return c.Success(iris.Map{
 		"userId":   user.Id,
 		"userName": user.Name,
+		"role":     user.Role, // Add role for frontend permission checks
 	}, "ok")
 }
