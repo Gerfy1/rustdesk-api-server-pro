@@ -846,8 +846,8 @@ async function handleAddComment() {
   try {
     const { addTicketComment, fetchTicketComments } = await import('@/service/api');
     
-    // Include uploaded files URLs as JSON
-    const attachments = uploadedFiles.value.length > 0 ? JSON.stringify(uploadedFiles.value) : undefined;
+    // Send attachments as array (not JSON string)
+    const attachments = uploadedFiles.value.length > 0 ? uploadedFiles.value : undefined;
     
     await addTicketComment(currentTicket.value.id!, {
       comment: newComment.value,
