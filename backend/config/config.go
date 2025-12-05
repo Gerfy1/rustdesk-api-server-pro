@@ -94,3 +94,7 @@ func WriteServerConfig(cfg *ServerConfig) {
 	bytes, _ := yaml.Marshal(cfg)
 	_ = os.WriteFile(yamlFile, bytes, 0755)
 }
+
+func EnsureDir(dir string) error {
+	return os.MkdirAll(dir, 0755)
+}

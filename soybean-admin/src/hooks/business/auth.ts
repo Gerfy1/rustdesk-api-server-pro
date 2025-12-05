@@ -37,10 +37,16 @@ export function useAuth() {
 export function usePermission() {
   const authStore = useAuthStore();
   
-  const userRole = computed(() => authStore.userInfo.role || 0);
+  const userRole = computed(() => {
+    const role = authStore.userInfo.role || 0;
+    console.log('[Permission] User role:', role, 'UserInfo:', authStore.userInfo);
+    return role;
+  });
   
   const hasPermission = (requiredRole: number): boolean => {
-    return userRole.value >= requiredRole;
+    const hasAccess = userRole.value >= requiredRole;
+    console.log('[Permission] Required:', requiredRole, 'User has:', userRole.value, 'Access:', hasAccess);
+    return hasAccess;
   };
   
   const canManageAddressBooks = computed(() => hasPermission(USER_ROLES.SUPPORT_N2));

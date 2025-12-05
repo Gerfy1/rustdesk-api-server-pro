@@ -28,6 +28,12 @@ declare namespace Api {
       id?: number;
       created_at?: string;
     } & T;
+
+    /** common result for operations */
+    type CommonResult = {
+      data: any;
+      error: string | null;
+    };
   }
 
   namespace Form {
@@ -132,6 +138,8 @@ declare namespace Api {
       ip_address: string;
       conns: number;
       created_at: string;
+      total_accesses?: number;
+      last_connection_at?: string;
     }>;
     type DevicesList = Common.PaginatingQueryRecord<Device>;
     type DeviceSearchParams = CommonType.RecordNullable<
@@ -155,6 +163,7 @@ declare namespace Api {
       uuid: string;
       type: number;
       closed_at?: string;
+      duration?: string; // Calculated field in frontend
     }>;
     type AuditLogList = Common.PaginatingQueryRecord<AuditLog>;
     type AuditLogSearchParams = CommonType.RecordNullable<
@@ -261,4 +270,152 @@ declare namespace Api {
       home: import('@elegant-router/types').LastLevelRouteKey;
     }
   }
+
+  /**
+   * namespace DocHelp
+   *
+   * backend api module: "dochelp"
+   */
+  namespace DocHelp {
+    // Category
+    type Category = Common.CommonRecord<{
+      name: string;
+      icon?: string;
+      order: number;
+    }>;
+
+    type CategoryEdit = {
+      name: string;
+      icon?: string;
+      order: number;
+    };
+
+    type CategoryList = {
+      data: {
+        categories: Category[];
+      };
+    };
+
+    // Article
+    type Article = Common.CommonRecord<{
+      category_id: number;
+      category_name: string;
+      title: string;
+      content: string;
+      tags: string;
+      is_pinned: boolean;
+      views: number;
+      author_id: number;
+      author_name: string;
+      from_ticket: number;
+      updated_at: string;
+    }>;
+
+    type ArticleParams = Common.CommonSearchParams & {
+      category_id?: number;
+      search?: string;
+      pinned?: string;
+    };
+
+    type ArticleList = {
+      data: Common.PaginatingQueryRecord<Article>;
+    };
+
+    type ArticleDetail = {
+      data: Article;
+    };
+
+    type ArticleEdit = {
+      category_id: number;
+      title: string;
+      content: string;
+      tags: string[];
+      is_pinned: boolean;
+    };
+
+    // Ticket
+    type Ticket = Common.CommonRecord<{
+      title: string;
+      description: string;
+      status: number; // 1=Open, 2=In Analysis, 3=Resolved
+      priority: number; // 1=Low, 2=Medium, 3=High, 4=Critical
+      category_id: number;
+      attachments: string;
+      creator_id: number;
+      creator_name: string;
+      assigned_to: number;
+      resolved_by: number;
+      resolved_at: string;
+      comment_count: number;
+      updated_at: string;
+    }>;
+
+    type TicketParams = Common.CommonSearchParams & {
+      status?: number;
+      priority?: number;
+      creator_id?: number;
+    };
+
+    type TicketList = {
+      data: Common.PaginatingQueryRecord<Ticket>;
+    };
+
+    type TicketDetail = {
+      data: Ticket;
+    };
+
+    type TicketCreate = {
+      title: string;
+      description: string;
+      priority: number;
+      category_id?: number;
+      attachments?: string[];
+    };
+
+    type TicketUpdate = {
+      status?: number;
+      priority?: number;
+      assigned_to?: number;
+    };
+
+    type TicketConvert = {
+      category_id: number;
+      title: string;
+      tags: string[];
+    };
+
+    // Comment
+    type Comment = Common.CommonRecord<{
+      ticket_id: number;
+      user_id: number;
+      username: string;
+      comment: string;
+      attachments: string;
+      is_internal: boolean;
+    }>;
+
+    type CommentList = {
+      data: {
+        comments: Comment[];
+      };
+    };
+
+    type CommentCreate = {
+      comment: string;
+      attachments?: string[];
+      is_internal?: boolean;
+    };
+
+    // Statistics
+    type Stats = {
+      data: {
+        total_articles: number;
+        open_tickets: number;
+        in_progress_tickets: number;
+        resolved_tickets: number;
+        most_viewed_articles: Article[];
+      };
+    };
+  }
 }
+

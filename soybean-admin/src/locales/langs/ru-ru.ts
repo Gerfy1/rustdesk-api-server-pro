@@ -24,6 +24,7 @@ const local: App.I18n.Schema = {
     deleteSuccess: 'Успешное удаление',
     confirmDelete: 'Вы уверены, что хотите удалить?',
     edit: 'Править',
+    view: 'Просмотр',
     look: 'Смотреть',
     warning: 'Предупреждение',
     error: 'Ошибка',
@@ -169,7 +170,11 @@ const local: App.I18n.Schema = {
     audit_baselogs: 'Базовый журнал',
     audit_filetransferlogs: 'Журнал передачи файлов',
     'address-books': 'Адресная книга',
-    devices: 'Устройства'
+    devices: 'Устройства',
+    dochelp: 'DocHelp',
+    dochelp_kb: 'База знаний',
+    dochelp_tickets: 'Мои обращения',
+    dochelp_alltickets: 'Все обращения'
   },
   page: {
     login: {
@@ -230,8 +235,36 @@ const local: App.I18n.Schema = {
       },
       devices: {
         title: 'Устройства',
-        searchPlaceholder: 'Имя компьютера\\Пользователь\\RustdeskID'
+        searchPlaceholder: 'Имя хоста\\Имя пользователя\\RustdeskID'
       }
+    },
+    dochelp: {
+      reportProblem: 'Сообщить о проблеме',
+      searchPlaceholder: 'Поиск статей...',
+      selectCategory: 'Выберите категорию',
+      pinnedOnly: 'Показать закрепленные',
+      filterByStatus: 'Фильтр по статусу',
+      filterByPriority: 'Фильтр по приоритету',
+      title: 'Название',
+      category: 'Категория',
+      views: 'Просмотры',
+      author: 'Автор',
+      createdAt: 'Создано',
+      ticketTitle: 'Название',
+      ticketTitlePlaceholder: 'Введите описательное название',
+      description: 'Описание',
+      descriptionPlaceholder: 'Подробно опишите проблему',
+      priority: 'Приоритет',
+      status: 'Статус',
+      creator: 'Создал',
+      comments: 'Комментарии',
+      statusOpen: 'Открыт',
+      statusInAnalysis: 'На рассмотрении',
+      statusResolved: 'Решен',
+      priorityLow: 'Низкий',
+      priorityMedium: 'Средний',
+      priorityHigh: 'Высокий',
+      priorityCritical: 'Критический'
     },
     system: {
       mailTemplate: {

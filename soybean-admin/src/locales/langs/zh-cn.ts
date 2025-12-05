@@ -24,6 +24,7 @@ const local: App.I18n.Schema = {
     deleteSuccess: '删除成功',
     confirmDelete: '确认删除吗？',
     edit: '编辑',
+    view: '查看',
     look: '查看',
     warning: '警告',
     error: '错误',
@@ -168,7 +169,11 @@ const local: App.I18n.Schema = {
     audit_baselogs: '基础日志',
     audit_filetransferlogs: '文件传输日志',
     'address-books': '通讯录',
-    devices: '设备管理'
+    devices: '设备管理',
+    dochelp: 'DocHelp',
+    dochelp_kb: '知识库',
+    dochelp_tickets: '我的工单',
+    dochelp_alltickets: '所有工单'
   },
   page: {
     login: {
@@ -231,6 +236,34 @@ const local: App.I18n.Schema = {
         title: '设备',
         searchPlaceholder: '主机名、用户名、RustdeskID'
       }
+    },
+    dochelp: {
+      reportProblem: '报告问题',
+      searchPlaceholder: '搜索文章...',
+      selectCategory: '选择分类',
+      pinnedOnly: '仅显示置顶',
+      filterByStatus: '按状态筛选',
+      filterByPriority: '按优先级筛选',
+      title: '标题',
+      category: '分类',
+      views: '浏览',
+      author: '作者',
+      createdAt: '创建时间',
+      ticketTitle: '标题',
+      ticketTitlePlaceholder: '输入描述性标题',
+      description: '描述',
+      descriptionPlaceholder: '详细描述问题',
+      priority: '优先级',
+      status: '状态',
+      creator: '创建者',
+      comments: '评论',
+      statusOpen: '待处理',
+      statusInAnalysis: '分析中',
+      statusResolved: '已解决',
+      priorityLow: '低',
+      priorityMedium: '中',
+      priorityHigh: '高',
+      priorityCritical: '紧急'
     },
     system: {
       mailTemplate: {

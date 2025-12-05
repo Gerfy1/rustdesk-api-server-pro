@@ -25,6 +25,7 @@ declare module "@elegant-router/types" {
     "audit_baselogs": "/audit/baselogs";
     "audit_filetransferlogs": "/audit/filetransferlogs";
     "devices": "/devices";
+    "dochelp": "/dochelp";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
     "login": "/login/:module(pwd-login)?";
@@ -72,6 +73,7 @@ declare module "@elegant-router/types" {
     | "address-books"
     | "audit"
     | "devices"
+    | "dochelp"
     | "home"
     | "iframe-page"
     | "login"
@@ -102,6 +104,7 @@ declare module "@elegant-router/types" {
     | "audit_baselogs"
     | "audit_filetransferlogs"
     | "devices"
+    | "dochelp"
     | "home"
     | "system_mail_logs"
     | "system_mail_template"

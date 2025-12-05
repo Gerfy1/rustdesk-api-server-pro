@@ -24,6 +24,7 @@ const local: App.I18n.Schema = {
     deleteSuccess: 'Eliminato con successo',
     confirmDelete: 'Sei sicuro di voler eliminare?',
     edit: 'Modifica',
+    view: 'Visualizza',
     look: 'Visualizza',
     warning: 'Avviso',
     error: 'Errore',
@@ -167,6 +168,10 @@ const local: App.I18n.Schema = {
     audit_filetransferlogs: 'Log trasferimenti file',
     'address-books': 'Rubriche',
     devices: 'Dispositivi',
+    dochelp: 'DocHelp',
+    dochelp_kb: 'Base di Conoscenza',
+    dochelp_tickets: 'I Miei Ticket',
+    dochelp_alltickets: 'Tutti i Ticket'
   },
   page: {
     login: {
@@ -227,8 +232,36 @@ const local: App.I18n.Schema = {
       },
       devices: {
         title: 'Dispositivi',
-        searchPlaceholder: 'Nome computer\\Utente\\RustdeskID'
+        searchPlaceholder: 'Nome host\\Nome utente\\RustdeskID'
       }
+    },
+    dochelp: {
+      reportProblem: 'Segnala un Problema',
+      searchPlaceholder: 'Cerca articoli...',
+      selectCategory: 'Seleziona categoria',
+      pinnedOnly: 'Mostra solo in evidenza',
+      filterByStatus: 'Filtra per stato',
+      filterByPriority: 'Filtra per priorità',
+      title: 'Titolo',
+      category: 'Categoria',
+      views: 'Visualizzazioni',
+      author: 'Autore',
+      createdAt: 'Creato il',
+      ticketTitle: 'Titolo',
+      ticketTitlePlaceholder: 'Inserisci un titolo descrittivo',
+      description: 'Descrizione',
+      descriptionPlaceholder: 'Descrivi il problema in dettaglio',
+      priority: 'Priorità',
+      status: 'Stato',
+      creator: 'Creato da',
+      comments: 'Commenti',
+      statusOpen: 'Aperto',
+      statusInAnalysis: 'In Analisi',
+      statusResolved: 'Risolto',
+      priorityLow: 'Bassa',
+      priorityMedium: 'Media',
+      priorityHigh: 'Alta',
+      priorityCritical: 'Critica'
     },
     system: {
       mailTemplate: {

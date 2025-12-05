@@ -35,6 +35,11 @@ func newApp(cfg *config.ServerConfig) (*iris.Application, error) {
 		new(model.MailTemplate),
 		new(model.SystemSettings),
 		new(model.VerifyCode),
+		// DocHelp tables
+		new(model.KnowledgeBaseCategory),
+		new(model.KnowledgeBaseArticle),
+		new(model.Ticket),
+		new(model.TicketComment),
 	)
 	if err != nil {
 		app.Logger().Fatal("Database sync error:", err)
@@ -60,6 +65,9 @@ func newApp(cfg *config.ServerConfig) (*iris.Application, error) {
 	}
 
 	SetRoute(app)
+
+	// Serve uploaded files
+	app.HandleDir("/uploads", iris.Dir("./uploads"))
 
 	app.HandleDir("/", iris.Dir(cfg.HttpConfig.StaticDir))
 

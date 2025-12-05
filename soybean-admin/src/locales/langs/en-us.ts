@@ -24,6 +24,7 @@ const local: App.I18n.Schema = {
     deleteSuccess: 'Delete Success',
     confirmDelete: 'Are you sure you want to delete?',
     edit: 'Edit',
+    view: 'View',
     look: 'Look',
     warning: 'Warning',
     error: 'Error',
@@ -169,6 +170,10 @@ const local: App.I18n.Schema = {
     audit_filetransferlogs: 'File Transfer Logs',
     'address-books': 'Address Books',
     devices: 'Devices',
+    dochelp: 'DocHelp',
+    dochelp_kb: 'Knowledge Base',
+    dochelp_tickets: 'My Tickets',
+    dochelp_alltickets: 'All Tickets'
   },
   page: {
     login: {
@@ -231,6 +236,34 @@ const local: App.I18n.Schema = {
         title: 'Devices',
         searchPlaceholder: 'Hostname\\Username\\RustdeskID'
       }
+    },
+    dochelp: {
+      reportProblem: 'Report a Problem',
+      searchPlaceholder: 'Search articles...',
+      selectCategory: 'Select category',
+      pinnedOnly: 'Show pinned only',
+      filterByStatus: 'Filter by status',
+      filterByPriority: 'Filter by priority',
+      title: 'Title',
+      category: 'Category',
+      views: 'Views',
+      author: 'Author',
+      createdAt: 'Created At',
+      ticketTitle: 'Title',
+      ticketTitlePlaceholder: 'Enter a descriptive title',
+      description: 'Description',
+      descriptionPlaceholder: 'Describe the problem in detail',
+      priority: 'Priority',
+      status: 'Status',
+      creator: 'Created By',
+      comments: 'Comments',
+      statusOpen: 'Open',
+      statusInAnalysis: 'In Analysis',
+      statusResolved: 'Resolved',
+      priorityLow: 'Low',
+      priorityMedium: 'Medium',
+      priorityHigh: 'High',
+      priorityCritical: 'Critical'
     },
     system: {
       mailTemplate: {
