@@ -1196,7 +1196,19 @@ function openEditArticle(article: Api.DocHelp.Article) {
   articleForm.title = article.title;
   articleForm.category_id = article.category_id;
   articleForm.content = article.content;
-  articleForm.tags = article.tags || '';
+  
+  // Convert tags from JSON array string to comma-separated string
+  let tagsStr = '';
+  if (article.tags) {
+    try {
+      const tagsArray = JSON.parse(article.tags);
+      tagsStr = Array.isArray(tagsArray) ? tagsArray.join(', ') : article.tags;
+    } catch {
+      tagsStr = article.tags;
+    }
+  }
+  articleForm.tags = tagsStr;
+  
   articleForm.is_pinned = article.is_pinned || false;
   showArticleModal.value = true;
 }
@@ -1206,11 +1218,17 @@ async function handleSaveArticle() {
   try {
     const { createKBArticle, updateKBArticle } = await import('@/service/api');
     
+    // Convert tags string to array
+    const formData = {
+      ...articleForm,
+      tags: articleForm.tags ? articleForm.tags.split(',').map(t => t.trim()).filter(t => t) : []
+    };
+    
     if (editingArticleId.value) {
-      await updateKBArticle(editingArticleId.value, articleForm as any);
+      await updateKBArticle(editingArticleId.value, formData as any);
       window.$message?.success('Artigo atualizado com sucesso');
     } else {
-      await createKBArticle(articleForm as any);
+      await createKBArticle(formData as any);
       window.$message?.success('Artigo criado com sucesso');
     }
     
