@@ -65,6 +65,24 @@ func newApp(cfg *config.ServerConfig) (*iris.Application, error) {
 	})
 
 	app.Use(iris.Compression)
+
+	// Enable CORS for development - Only set if not already set
+	app.UseRouter(func(ctx iris.Context) {
+		origin := ctx.GetHeader("Origin")
+		if origin != "" && ctx.ResponseWriter().Header().Get("Access-Control-Allow-Origin") == "" {
+			ctx.Header("Access-Control-Allow-Origin", "*")
+			ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-Id")
+		}
+
+		if ctx.Method() == "OPTIONS" {
+			ctx.StatusCode(200)
+			return
+		}
+
+		ctx.Next()
+	})
+
 	if cfg.HttpConfig.PrintRequestLog {
 		app.Use(middleware.RequestLogger())
 	}
@@ -94,7 +112,7 @@ func fixUserRoles(dbEngine *xorm.Engine, app *iris.Application) {
 	}
 
 	app.Logger().Infof("Found %d users without role, fixing...", len(users))
-	
+
 	for _, user := range users {
 		// If user has is_admin=true, set as Super Admin (4)
 		// Otherwise set as regular User (1)

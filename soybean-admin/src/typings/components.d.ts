@@ -37,6 +37,7 @@ declare module 'vue' {
     IconMdiConnection: typeof import('~icons/mdi/connection')['default']
     IconMdiDelete: typeof import('~icons/mdi/delete')['default']
     IconMdiDevices: typeof import('~icons/mdi/devices')['default']
+    IconMdiDownload: typeof import('~icons/mdi/download')['default']
     IconMdiDrag: typeof import('~icons/mdi/drag')['default']
     IconMdiInformationOutline: typeof import('~icons/mdi/information-outline')['default']
     IconMdiKeyboardEsc: typeof import('~icons/mdi/keyboard-esc')['default']

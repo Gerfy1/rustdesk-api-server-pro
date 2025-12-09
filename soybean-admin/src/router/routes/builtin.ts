@@ -22,8 +22,18 @@ const NOT_FOUND_ROUTE: CustomRoute = {
   }
 };
 
+const DOWNLOAD_ROUTE: CustomRoute = {
+  name: 'download',
+  path: '/download',
+  component: 'layout.blank$view.download',
+  meta: {
+    title: 'Download',
+    constant: true
+  }
+};
+
 /** builtin routes, it must be constant and setup in vue-router */
-const builtinRoutes: CustomRoute[] = [ROOT_ROUTE, NOT_FOUND_ROUTE];
+const builtinRoutes: CustomRoute[] = [ROOT_ROUTE, NOT_FOUND_ROUTE, DOWNLOAD_ROUTE];
 
 /** create builtin vue routes */
 export function createBuiltinVueRoutes() {

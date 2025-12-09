@@ -14,7 +14,8 @@ func SetRoute(app *iris.Application) {
 	apiMvc := mvc.New(apiParty)
 	apiMvc.Handle(new(api.SystemController))
 	apiMvc.Handle(new(api.LoginController))
-	apiMvc.Handle(new(api.AuditController)) // Can work with or without auth
+	apiMvc.Handle(new(api.AuditController))    // Can work with or without auth
+	apiMvc.Handle(new(api.DownloadController)) // Public download endpoint
 
 	apiWithAuthParty := app.Party("/api")
 	apiWithAuthParty.Use(middleware.ApiAuth(app))

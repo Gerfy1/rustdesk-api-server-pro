@@ -172,6 +172,7 @@ const routeMap: RouteMap = {
   "audit_filetransferlogs": "/audit/filetransferlogs",
   "devices": "/devices",
   "dochelp": "/dochelp",
+  "download": "/download",
   "home": "/home",
   "iframe-page": "/iframe-page/:url",
   "login": "/login/:module(pwd-login)?",

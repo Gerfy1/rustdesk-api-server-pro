@@ -104,6 +104,15 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'download',
+    path: '/download',
+    component: 'layout.base$view.download',
+    meta: {
+      title: 'download',
+      i18nKey: 'route.download'
+    }
+  },
+  {
     name: 'home',
     path: '/home',
     component: 'layout.base$view.home',
