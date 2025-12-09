@@ -100,7 +100,9 @@ export const generatedRoutes: GeneratedRoute[] = [
     component: 'layout.base$view.dochelp',
     meta: {
       title: 'dochelp',
-      i18nKey: 'route.dochelp'
+      i18nKey: 'route.dochelp',
+      icon: 'mdi:book-open-page-variant',
+      order: 7
     }
   },
   {
@@ -109,7 +111,9 @@ export const generatedRoutes: GeneratedRoute[] = [
     component: 'layout.base$view.download',
     meta: {
       title: 'download',
-      i18nKey: 'route.download'
+      i18nKey: 'route.download',
+      icon: 'mdi:download',
+      order: 10
     }
   },
   {

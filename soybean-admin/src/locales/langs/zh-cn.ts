@@ -173,7 +173,8 @@ const local: App.I18n.Schema = {
     dochelp: 'DocHelp',
     dochelp_kb: '知识库',
     dochelp_tickets: '我的工单',
-    dochelp_alltickets: '所有工单'
+    dochelp_alltickets: '所有工单',
+    download: '下载'
   },
   page: {
     login: {

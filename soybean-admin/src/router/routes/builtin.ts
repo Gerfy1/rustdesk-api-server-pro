@@ -27,7 +27,9 @@ const DOWNLOAD_ROUTE: CustomRoute = {
   path: '/download',
   component: 'layout.blank$view.download',
   meta: {
-    title: 'Download',
+    title: 'download',
+    i18nKey: 'route.download',
+    icon: 'mdi:download',
     constant: true
   }
 };

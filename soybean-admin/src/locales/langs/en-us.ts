@@ -173,7 +173,8 @@ const local: App.I18n.Schema = {
     dochelp: 'DocHelp',
     dochelp_kb: 'Knowledge Base',
     dochelp_tickets: 'My Tickets',
-    dochelp_alltickets: 'All Tickets'
+    dochelp_alltickets: 'All Tickets',
+    download: 'Download'
   },
   page: {
     login: {
