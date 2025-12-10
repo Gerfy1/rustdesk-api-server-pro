@@ -19,7 +19,7 @@ type AddressBookController struct {
 
 func (c *AddressBookController) GetAb() mvc.Result {
 	user := c.GetUser()
-	
+
 	// Get ALL tags from ALL address books (shared access)
 	tagList := make([]model.AddressBookTag, 0)
 	err := c.Db.Find(&tagList)
@@ -30,11 +30,11 @@ func (c *AddressBookController) GetAb() mvc.Result {
 			},
 		}
 	}
-	
+
 	tags := make([]string, 0)
 	tagColors := make(map[string]int64)
 	seenTags := make(map[string]bool)
-	
+
 	for _, tag := range tagList {
 		if !seenTags[tag.Name] {
 			tags = append(tags, tag.Name)
@@ -53,7 +53,7 @@ func (c *AddressBookController) GetAb() mvc.Result {
 			},
 		}
 	}
-	
+
 	peers := make([]iris.Map, 0)
 	for _, peer := range peerList {
 		var peerTags []string
@@ -65,13 +65,13 @@ func (c *AddressBookController) GetAb() mvc.Result {
 		} else {
 			peerTags = []string{}
 		}
-		
+
 		// Ensure hash is a valid string (not binary data)
 		hash := peer.Hash
 		if hash == "" {
 			hash = ""
 		}
-		
+
 		peers = append(peers, iris.Map{
 			"id":       peer.RustdeskId,
 			"hash":     hash,
@@ -82,9 +82,9 @@ func (c *AddressBookController) GetAb() mvc.Result {
 			"tags":     peerTags,
 		})
 	}
-	
+
 	// Log for debugging
-	c.Ctx.Application().Logger().Infof("User %d (%s) accessing shared address books: %d tags, %d peers", 
+	c.Ctx.Application().Logger().Infof("User %d (%s) accessing shared address books: %d tags, %d peers",
 		user.Id, user.Username, len(tags), len(peers))
 
 	tagColorsJson, err := json.Marshal(tagColors)
@@ -326,7 +326,7 @@ func (c *AddressBookController) PostAbSharedProfiles() mvc.Result {
 // GetAbGet handles GET /api/ab/get?name=xxx - Returns peers for a specific address book
 func (c *AddressBookController) GetAbGet() mvc.Result {
 	abName := c.Ctx.URLParam("name")
-	
+
 	if abName == "" {
 		return mvc.Response{
 			Object: iris.Map{
@@ -444,7 +444,7 @@ func (c *AddressBookController) GetAbGet() mvc.Result {
 // PostAbTags handles POST /api/ab/tags - Returns tags for address books
 func (c *AddressBookController) PostAbTags() mvc.Result {
 	user := c.GetUser()
-	
+
 	// Get all address books for this user
 	abList := make([]model.AddressBook, 0)
 	err := c.Db.Where("user_id = ?", user.Id).Find(&abList)
@@ -464,7 +464,7 @@ func (c *AddressBookController) PostAbTags() mvc.Result {
 
 	// Get all tags for all address books of this user
 	tagList := make([]model.AddressBookTag, 0)
-	
+
 	if len(abIds) > 0 {
 		err = c.Db.In("ab_id", abIds).Find(&tagList)
 		if err != nil {
@@ -488,7 +488,7 @@ func (c *AddressBookController) PostAbTags() mvc.Result {
 		Name  string `json:"name"`
 		Color int64  `json:"color"`
 	}
-	
+
 	tags := make([]TagResponse, 0)
 	for name, color := range tagMap {
 		tags = append(tags, TagResponse{

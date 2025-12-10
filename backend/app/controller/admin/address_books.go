@@ -175,7 +175,7 @@ func (c *AddressBooksController) HandleCreate() mvc.Result {
 			if tagName == "" {
 				continue
 			}
-			
+
 			tag := model.AddressBookTag{
 				UserId: form.UserId,
 				AbId:   ab.Id,
@@ -293,7 +293,7 @@ func (c *AddressBooksController) HandleGetPeers() mvc.Result {
 		isOnline := false
 		lastSeenAt := ""
 		ipAddress := ""
-		
+
 		has, err := c.Db.Where("rustdesk_id = ?", peer.RustdeskId).Get(&device)
 		if err == nil && has {
 			isOnline = device.IsOnline
@@ -302,17 +302,17 @@ func (c *AddressBooksController) HandleGetPeers() mvc.Result {
 		}
 
 		list = append(list, iris.Map{
-			"id":            peer.Id,
-			"rustdesk_id":   peer.RustdeskId,
-			"username":      peer.Username,
-			"hostname":      peer.Hostname,
-			"alias":         peer.Alias,
-			"platform":      peer.Platform,
-			"tags":          peer.Tags,
-			"is_online":     isOnline,
-			"last_seen_at":  lastSeenAt,
-			"ip_address":    ipAddress,
-			"created_at":    peer.CreatedAt.Format(config.TimeFormat),
+			"id":           peer.Id,
+			"rustdesk_id":  peer.RustdeskId,
+			"username":     peer.Username,
+			"hostname":     peer.Hostname,
+			"alias":        peer.Alias,
+			"platform":     peer.Platform,
+			"tags":         peer.Tags,
+			"is_online":    isOnline,
+			"last_seen_at": lastSeenAt,
+			"ip_address":   ipAddress,
+			"created_at":   peer.CreatedAt.Format(config.TimeFormat),
 		})
 	}
 
@@ -377,7 +377,7 @@ func (c *AddressBooksController) HandleImportDevices() mvc.Result {
 		// Check if peer already exists
 		var existingPeer model.Peer
 		has, _ := c.Db.Where("rustdesk_id = ? AND ab_id = ?", device.RustdeskId, ab.Id).Get(&existingPeer)
-		
+
 		if has {
 			skippedCount++
 			continue
@@ -491,10 +491,10 @@ func (c *AddressBooksController) HandleAddPeer() mvc.Result {
 			if tagName == "" {
 				continue
 			}
-			
+
 			var existingTag model.AddressBookTag
 			hasTag, _ := c.Db.Where("ab_id = ? AND name = ?", ab.Id, tagName).Get(&existingTag)
-			
+
 			if !hasTag {
 				// Create new tag with default color
 				newTag := model.AddressBookTag{
@@ -567,4 +567,3 @@ func (c *AddressBooksController) HandleDeletePeer() mvc.Result {
 		"id": peerId,
 	}, "Peer deleted successfully")
 }
-

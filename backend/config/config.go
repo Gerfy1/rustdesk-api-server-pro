@@ -25,11 +25,11 @@ type DbConfig struct {
 }
 
 type HttpConfig struct {
-	PrintRequestLog bool              `yaml:"printRequestLog"`
-	Port            string            `yaml:"port"`
-	StaticDir       string            `yaml:"staticdir"`
-	InstallersDir   string            `yaml:"installersDir"`
-	ExternalLinks   *ExternalLinks    `yaml:"externalLinks"`
+	PrintRequestLog bool           `yaml:"printRequestLog"`
+	Port            string         `yaml:"port"`
+	StaticDir       string         `yaml:"staticdir"`
+	InstallersDir   string         `yaml:"installersDir"`
+	ExternalLinks   *ExternalLinks `yaml:"externalLinks"`
 }
 
 type ExternalLinks struct {

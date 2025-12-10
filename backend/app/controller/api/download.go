@@ -115,6 +115,12 @@ func (c *DownloadController) HandleList() {
 		installersPath = "./data/installers"
 	}
 
+	// Debug log
+	c.Ctx.Application().Logger().Infof("ExternalLinks config: %+v", cfg.HttpConfig.ExternalLinks)
+	if cfg.HttpConfig.ExternalLinks != nil && cfg.HttpConfig.ExternalLinks.Windows != nil {
+		c.Ctx.Application().Logger().Infof("Windows URL: %s", cfg.HttpConfig.ExternalLinks.Windows.URL)
+	}
+
 	type InstallerInfo struct {
 		Name     string `json:"name"`
 		Platform string `json:"platform"`
