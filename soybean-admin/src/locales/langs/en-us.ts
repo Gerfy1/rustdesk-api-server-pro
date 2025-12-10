@@ -29,6 +29,8 @@ const local: App.I18n.Schema = {
     warning: 'Warning',
     error: 'Error',
     index: 'Index',
+    import: 'Import',
+    total: 'Total',
     keywordSearch: 'Please enter keyword',
     logout: 'Logout',
     logoutConfirm: 'Are you sure you want to log out?',
@@ -236,6 +238,9 @@ const local: App.I18n.Schema = {
       devices: {
         title: 'Devices',
         searchPlaceholder: 'Hostname\\Username\\RustdeskID'
+      },
+      addressBooks: {
+        importConfirm: 'Import all online devices as peers? Existing devices will be skipped.'
       }
     },
     dochelp: {

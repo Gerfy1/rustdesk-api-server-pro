@@ -29,6 +29,8 @@ const local: App.I18n.Schema = {
     warning: 'Avviso',
     error: 'Errore',
     index: 'Indice',
+    import: 'Importa',
+    total: 'Totale',
     keywordSearch: 'Inserisci parola chiave',
     logout: 'Disconnetti',
     logoutConfirm: 'Sei sicuro di voler uscire?',
@@ -234,6 +236,9 @@ const local: App.I18n.Schema = {
       devices: {
         title: 'Dispositivi',
         searchPlaceholder: 'Nome host\\Nome utente\\RustdeskID'
+      },
+      addressBooks: {
+        importConfirm: 'Importare tutti i dispositivi online come peers? I dispositivi esistenti verranno ignorati.'
       }
     },
     dochelp: {

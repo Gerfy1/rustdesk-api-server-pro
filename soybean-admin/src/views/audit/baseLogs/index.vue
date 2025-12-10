@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { NTag, NText } from 'naive-ui';
+import { NTag, NText, NTooltip } from 'naive-ui';
 import { fetchAuditLogList } from '@/service/api/audit';
 import { $t } from '@/locales';
 import { useAppStore } from '@/store/modules/app';
@@ -118,7 +118,33 @@ const {
       title: 'Duração',
       align: 'center',
       render: row => {
-        if (!row.closed_at || !row.created_at) {
+        // Check if session is still open
+        if (!row.closed_at || row.closed_at === '0001-01-01T00:00:00Z' || row.closed_at === '0001-01-01 00:00:00') {
+          // Check how old the session is
+          if (row.created_at) {
+            const start = new Date(row.created_at).getTime();
+            const now = Date.now();
+            const diffHours = (now - start) / (1000 * 60 * 60);
+            
+            if (diffHours > 2) {
+              // Session is too old, likely disconnected abruptly
+              return (
+                <NTooltip>
+                  {{
+                    trigger: () => <NTag size="small" type="warning">⚠️ Desconectado</NTag>,
+                    default: () => 'Sessão encerrada abruptamente (queda de conexão, Alt+F4, etc)'
+                  }}
+                </NTooltip>
+              );
+            } else {
+              // Session might still be active
+              return <NTag size="small" type="success">🟢 Em andamento</NTag>;
+            }
+          }
+          return <NTag size="small" type="default">-</NTag>;
+        }
+        
+        if (!row.created_at) {
           return <NTag size="small" type="default">-</NTag>;
         }
         

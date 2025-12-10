@@ -306,9 +306,12 @@ declare namespace App {
         confirmDelete: string;
         edit: string;
         look: string;
+        view: string;
         warning: string;
         error: string;
         index: string;
+        import: string;
+        total: string;
         keywordSearch: string;
         logout: string;
         logoutConfirm: string;
@@ -458,6 +461,9 @@ declare namespace App {
           devices: {
             title: string;
             searchPlaceholder: string;
+          };
+          addressBooks: {
+            importConfirm: string;
           };
         };
         system: {

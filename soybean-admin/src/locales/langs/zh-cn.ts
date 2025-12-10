@@ -29,6 +29,8 @@ const local: App.I18n.Schema = {
     warning: '警告',
     error: '错误',
     index: '序号',
+    import: '导入',
+    total: '总计',
     keywordSearch: '请输入关键词搜索',
     logout: '退出登录',
     logoutConfirm: '确认退出登录吗？',
@@ -236,6 +238,9 @@ const local: App.I18n.Schema = {
       devices: {
         title: '设备',
         searchPlaceholder: '主机名、用户名、RustdeskID'
+      },
+      addressBooks: {
+        importConfirm: '导入所有在线设备为peers？已存在的设备将被跳过。'
       }
     },
     dochelp: {

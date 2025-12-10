@@ -29,6 +29,8 @@ const local: App.I18n.Schema = {
     warning: 'Предупреждение',
     error: 'Ошибка',
     index: 'Индекс',
+    import: 'Импорт',
+    total: 'Всего',
     keywordSearch: 'Пожалуйста, введите ключевое слово',
     logout: 'Выход',
     logoutConfirm: 'Вы уверены, что хотите выйти?',
@@ -237,6 +239,9 @@ const local: App.I18n.Schema = {
       devices: {
         title: 'Устройства',
         searchPlaceholder: 'Имя хоста\\Имя пользователя\\RustdeskID'
+      },
+      addressBooks: {
+        importConfirm: 'Импортировать все онлайн-устройства как peers? Существующие устройства будут пропущены.'
       }
     },
     dochelp: {

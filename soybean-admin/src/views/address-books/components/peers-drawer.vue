@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { NTag, NBadge, NDataTable, NButton, NSpace, NPopconfirm } from 'naive-ui';
 import { fetchAddressBookPeers, importDevicesAsPeers } from '@/service/api/address-books';
 import { usePermission } from '@/hooks/business/auth';
+import { $t } from '@/locales';
 import AddPeerModal from './add-peer-modal.vue';
 
 defineOptions({
@@ -144,14 +145,18 @@ const columns = [
         return <span style="color: #999; font-size: 12px">-</span>;
       }
       return (
-        <NPopconfirm onPositiveClick={() => row.id && handleDeletePeer(row.id)}>
+        <NPopconfirm 
+          onPositiveClick={() => row.id && handleDeletePeer(row.id)}
+          positiveText={$t('common.confirm')}
+          negativeText={$t('common.cancel')}
+        >
           {{
-            default: () => 'Tem certeza que deseja deletar este peer?',
+            default: () => $t('common.confirmDelete'),
             trigger: () => (
               <NButton type="error" size="small" quaternary>
                 {{
                   icon: () => <icon-mdi-delete class="text-icon" />,
-                  default: () => 'Deletar'
+                  default: () => $t('common.delete')
                 }}
               </NButton>
             )
@@ -237,7 +242,7 @@ function handleClose() {
         <NCard :bordered="false" size="small" class="shadow-sm">
           <NSpace justify="space-between" align="center">
             <NText strong>
-              Total de Peers: {{ peers.length }}
+              {{ $t('common.total') }}: {{ peers.length }}
             </NText>
             
             <!-- Botões de ação em destaque -->
@@ -246,19 +251,23 @@ function handleClose() {
                 <template #icon>
                   <icon-mdi-account-plus class="text-icon" />
                 </template>
-                Adicionar Peer Manualmente
+                {{ $t('common.add') }}
               </NButton>
               
-              <NPopconfirm @positive-click="handleImportDevices">
+              <NPopconfirm 
+                :positive-text="$t('common.confirm')" 
+                :negative-text="$t('common.cancel')"
+                @positive-click="handleImportDevices"
+              >
                 <template #trigger>
                   <NButton type="primary" size="medium" :loading="loading">
                     <template #icon>
                       <icon-mdi-cloud-download class="text-icon" />
                     </template>
-                    Importar Devices Online
+                    {{ $t('common.import') }}
                   </NButton>
                 </template>
-                Importar todos os dispositivos online como peers? Dispositivos já existentes serão ignorados.
+                {{ $t('page.user.addressBooks.importConfirm') }}
               </NPopconfirm>
             </NSpace>
           </NSpace>
@@ -277,7 +286,7 @@ function handleClose() {
 
       <template #footer>
         <NSpace justify="end">
-          <NButton @click="handleClose">Fechar</NButton>
+          <NButton @click="handleClose">{{ $t('common.close') }}</NButton>
         </NSpace>
       </template>
     </NDrawerContent>
