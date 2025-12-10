@@ -38,6 +38,7 @@ interface DownloadItem {
   icon: string;
   url: string;
   size: string;
+  external: boolean;
 }
 
 const loading = ref(true);
@@ -71,8 +72,9 @@ async function loadInstallers() {
         name: item.name,
         platform: platformInfo[item.platform]?.label || item.platform,
         icon: platformInfo[item.platform]?.icon || 'mdi-download',
-        url: `${apiBaseUrl}${item.url}`,
-        size: formatSize(item.size)
+        url: item.external ? item.url : `${apiBaseUrl}${item.url}`,
+        size: item.size > 0 ? formatSize(item.size) : '',
+        external: item.external || false
       }));
     } else {
       // Fallback para links padrão se não houver instaladores
@@ -82,21 +84,24 @@ async function loadInstallers() {
           platform: 'Windows',
           icon: 'logos-microsoft-windows',
           url: `${apiBaseUrl}/api/download/windows`,
-          size: 'Não disponível'
+          size: '',
+          external: false
         },
         {
           name: 'macOS Installer',
           platform: 'macOS',
           icon: 'logos-apple',
           url: `${apiBaseUrl}/api/download/macos`,
-          size: 'Não disponível'
+          size: '',
+          external: false
         },
         {
           name: 'Linux Installer',
           platform: 'Linux',
           icon: 'logos-linux-tux',
           url: `${apiBaseUrl}/api/download/linux`,
-          size: 'Não disponível'
+          size: '',
+          external: false
         }
       ];
     }
@@ -109,21 +114,24 @@ async function loadInstallers() {
         platform: 'Windows',
         icon: 'logos-microsoft-windows',
         url: `${apiBaseUrl}/api/download/windows`,
-        size: 'Não disponível'
+        size: '',
+        external: false
       },
       {
         name: 'macOS Installer',
         platform: 'macOS',
         icon: 'logos-apple',
         url: `${apiBaseUrl}/api/download/macos`,
-        size: 'Não disponível'
+        size: '',
+        external: false
       },
       {
         name: 'Linux Installer',
         platform: 'Linux',
         icon: 'logos-linux-tux',
         url: `${apiBaseUrl}/api/download/linux`,
-        size: 'Não disponível'
+        size: '',
+        external: false
       }
     ];
   } finally {
@@ -132,7 +140,14 @@ async function loadInstallers() {
 }
 
 const handleDownload = (item: DownloadItem) => {
-  window.open(item.url, '_blank');
+  // Criar um link temporário para download direto (sem popup)
+  const link = document.createElement('a');
+  link.href = item.url;
+  link.download = item.name;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 onMounted(() => {

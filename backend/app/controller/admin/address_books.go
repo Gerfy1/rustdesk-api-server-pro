@@ -6,6 +6,7 @@ import (
 	"rustdesk-api-server-pro/config"
 	"rustdesk-api-server-pro/db"
 
+	"github.com/beevik/guid"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"xorm.io/xorm"
@@ -149,8 +150,12 @@ func (c *AddressBooksController) HandleCreate() mvc.Result {
 		return c.Error(nil, "User not found")
 	}
 
+	// Generate GUID for the address book
+	newGuid := guid.New().String()
+
 	ab := model.AddressBook{
 		UserId:  form.UserId,
+		Guid:    newGuid,
 		Name:    form.Name,
 		Owner:   user.Username,
 		Note:    form.Note,

@@ -25,9 +25,22 @@ type DbConfig struct {
 }
 
 type HttpConfig struct {
-	PrintRequestLog bool   `yaml:"printRequestLog"`
-	Port            string `yaml:"port"`
-	StaticDir       string `yaml:"staticdir"`
+	PrintRequestLog bool              `yaml:"printRequestLog"`
+	Port            string            `yaml:"port"`
+	StaticDir       string            `yaml:"staticdir"`
+	InstallersDir   string            `yaml:"installersDir"`
+	ExternalLinks   *ExternalLinks    `yaml:"externalLinks"`
+}
+
+type ExternalLinks struct {
+	Windows *ExternalDownload `yaml:"windows"`
+	MacOS   *ExternalDownload `yaml:"macos"`
+	Linux   *ExternalDownload `yaml:"linux"`
+}
+
+type ExternalDownload struct {
+	Name string `yaml:"name"`
+	URL  string `yaml:"url"`
 }
 
 type SmtpConfig struct {
@@ -62,8 +75,9 @@ func GetDefaultServerConfig() *ServerConfig {
 			TimeZone: "Asia/Shanghai",
 		},
 		HttpConfig: &HttpConfig{
-			Port:      ":8080",
-			StaticDir: "dist",
+			Port:          ":8080",
+			StaticDir:     "dist",
+			InstallersDir: "./data/installers",
 		},
 		SignKey: util.RandomString(32),
 		JobsConfig: &JobsConfig{

@@ -3,6 +3,7 @@ package api
 import (
 	"os"
 	"path/filepath"
+	"rustdesk-api-server-pro/config"
 
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
@@ -43,7 +44,11 @@ func (c *DownloadController) HandleFile(filename string) {
 
 // serveInstaller serves the installer file
 func (c *DownloadController) serveInstaller(platform, defaultFilename string) {
-	installersPath := "./data/installers"
+	cfg := config.GetServerConfig()
+	installersPath := cfg.HttpConfig.InstallersDir
+	if installersPath == "" {
+		installersPath = "./data/installers"
+	}
 
 	var filePath string
 
@@ -104,14 +109,10 @@ func (c *DownloadController) serveInstaller(platform, defaultFilename string) {
 
 // HandleList GET /api/download/list - lista os instaladores disponíveis
 func (c *DownloadController) HandleList() {
-	installersPath := "./data/installers"
-
-	files, err := os.ReadDir(installersPath)
-	if err != nil {
-		c.Ctx.JSON(iris.Map{
-			"installers": []string{},
-		})
-		return
+	cfg := config.GetServerConfig()
+	installersPath := cfg.HttpConfig.InstallersDir
+	if installersPath == "" {
+		installersPath = "./data/installers"
 	}
 
 	type InstallerInfo struct {
@@ -119,42 +120,103 @@ func (c *DownloadController) HandleList() {
 		Platform string `json:"platform"`
 		Size     int64  `json:"size"`
 		URL      string `json:"url"`
+		External bool   `json:"external"`
 	}
 
 	var installers []InstallerInfo
 
-	for _, file := range files {
-		if file.IsDir() {
-			continue
+	// Primeiro, adiciona links externos se configurados
+	if cfg.HttpConfig.ExternalLinks != nil {
+		if cfg.HttpConfig.ExternalLinks.Windows != nil && cfg.HttpConfig.ExternalLinks.Windows.URL != "" {
+			name := cfg.HttpConfig.ExternalLinks.Windows.Name
+			if name == "" {
+				name = "Windows Installer"
+			}
+			installers = append(installers, InstallerInfo{
+				Name:     name,
+				Platform: "windows",
+				Size:     0,
+				URL:      cfg.HttpConfig.ExternalLinks.Windows.URL,
+				External: true,
+			})
 		}
-
-		name := file.Name()
-		ext := filepath.Ext(name)
-
-		var platform string
-		switch ext {
-		case ".exe", ".msi":
-			platform = "windows"
-		case ".dmg", ".pkg":
-			platform = "macos"
-		case ".deb", ".rpm", ".AppImage":
-			platform = "linux"
-		default:
-			continue
+		if cfg.HttpConfig.ExternalLinks.MacOS != nil && cfg.HttpConfig.ExternalLinks.MacOS.URL != "" {
+			name := cfg.HttpConfig.ExternalLinks.MacOS.Name
+			if name == "" {
+				name = "MacOS Installer"
+			}
+			installers = append(installers, InstallerInfo{
+				Name:     name,
+				Platform: "macos",
+				Size:     0,
+				URL:      cfg.HttpConfig.ExternalLinks.MacOS.URL,
+				External: true,
+			})
 		}
-
-		info, _ := file.Info()
-		size := int64(0)
-		if info != nil {
-			size = info.Size()
+		if cfg.HttpConfig.ExternalLinks.Linux != nil && cfg.HttpConfig.ExternalLinks.Linux.URL != "" {
+			name := cfg.HttpConfig.ExternalLinks.Linux.Name
+			if name == "" {
+				name = "Linux Installer"
+			}
+			installers = append(installers, InstallerInfo{
+				Name:     name,
+				Platform: "linux",
+				Size:     0,
+				URL:      cfg.HttpConfig.ExternalLinks.Linux.URL,
+				External: true,
+			})
 		}
+	}
 
-		installers = append(installers, InstallerInfo{
-			Name:     name,
-			Platform: platform,
-			Size:     size,
-			URL:      "/api/download/" + name,
-		})
+	// Depois, adiciona arquivos locais (se existirem)
+	files, err := os.ReadDir(installersPath)
+	if err == nil {
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+
+			name := file.Name()
+			ext := filepath.Ext(name)
+
+			var platform string
+			switch ext {
+			case ".exe", ".msi":
+				platform = "windows"
+			case ".dmg", ".pkg":
+				platform = "macos"
+			case ".deb", ".rpm", ".AppImage":
+				platform = "linux"
+			default:
+				continue
+			}
+
+			// Pula se já existe um link externo para esta plataforma
+			hasExternal := false
+			for _, inst := range installers {
+				if inst.Platform == platform && inst.External {
+					hasExternal = true
+					break
+				}
+			}
+			if hasExternal {
+				continue
+			}
+
+			info, _ := file.Info()
+			size := int64(0)
+			if info != nil {
+				size = info.Size()
+			}
+
+			installers = append(installers, InstallerInfo{
+				Name:     name,
+				Platform: platform,
+				Size:     size,
+				URL:      "/api/download/" + name,
+				External: false,
+			})
+		}
 	}
 
 	c.Ctx.JSON(iris.Map{

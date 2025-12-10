@@ -57,13 +57,24 @@ func (c *AddressBookController) GetAb() mvc.Result {
 	peers := make([]iris.Map, 0)
 	for _, peer := range peerList {
 		var peerTags []string
-		err := json.Unmarshal([]byte(peer.Tags), &peerTags)
-		if err != nil {
+		if peer.Tags != "" {
+			err := json.Unmarshal([]byte(peer.Tags), &peerTags)
+			if err != nil {
+				peerTags = []string{}
+			}
+		} else {
 			peerTags = []string{}
 		}
+		
+		// Ensure hash is a valid string (not binary data)
+		hash := peer.Hash
+		if hash == "" {
+			hash = ""
+		}
+		
 		peers = append(peers, iris.Map{
 			"id":       peer.RustdeskId,
-			"hash":     peer.Hash,
+			"hash":     hash,
 			"username": peer.Username,
 			"hostname": peer.Hostname,
 			"platform": peer.Platform,
@@ -78,11 +89,7 @@ func (c *AddressBookController) GetAb() mvc.Result {
 
 	tagColorsJson, err := json.Marshal(tagColors)
 	if err != nil {
-		return mvc.Response{
-			Object: iris.Map{
-				"error": err.Error(),
-			},
-		}
+		tagColorsJson = []byte("{}")
 	}
 
 	dataJson, err := json.Marshal(iris.Map{
@@ -384,11 +391,19 @@ func (c *AddressBookController) GetAbGet() mvc.Result {
 			if err != nil {
 				peerTags = []string{}
 			}
+		} else {
+			peerTags = []string{}
+		}
+
+		// Ensure hash is a valid string (not binary data)
+		hash := peer.Hash
+		if hash == "" {
+			hash = ""
 		}
 
 		peers = append(peers, iris.Map{
 			"id":       peer.RustdeskId,
-			"hash":     peer.Hash,
+			"hash":     hash,
 			"username": peer.Username,
 			"hostname": peer.Hostname,
 			"platform": peer.Platform,
@@ -397,22 +412,20 @@ func (c *AddressBookController) GetAbGet() mvc.Result {
 		})
 	}
 
+	// Serialize tag_colors as JSON string
 	tagColorsJson, err := json.Marshal(tagColors)
 	if err != nil {
-		return mvc.Response{
-			Object: iris.Map{
-				"error": err.Error(),
-			},
-		}
+		tagColorsJson = []byte("{}")
 	}
 
-	data := iris.Map{
+	// Build the data object with proper structure
+	dataObj := iris.Map{
 		"tags":       tags,
 		"peers":      peers,
 		"tag_colors": string(tagColorsJson),
 	}
 
-	dataStr, err := json.Marshal(data)
+	dataStr, err := json.Marshal(dataObj)
 	if err != nil {
 		return mvc.Response{
 			Object: iris.Map{

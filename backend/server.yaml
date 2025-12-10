@@ -11,6 +11,10 @@ db:
 httpConfig:
   printRequestLog: true
   port: ":12345" # api server port
+  externalLinks:
+    windows:
+      name: "MTRemoto_Installer.exe"
+      url: "https://download850.mediafire.com/p0fho1mi62lgs6_cdpXRrzhQYShWDglnk4_qB2AKvbd_SBIffJdM89khzac07pMy3OCI5lTjstNTeSnwfbp9DqRHLaKGbxi7-ObfFWibQVjfwS6vrXIITu2B_Y3CWxj4nKqOXgokLeJLIfgK8INZvHfedmfUdOhZ2Yo-9SsPOKFn/h9gmwhmdefkcfm4/MTRemoto_Installer.exe"
 
 smtpConfig:
   host: "127.0.0.1"
